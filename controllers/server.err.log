@@ -1,0 +1,40 @@
+[2026-06-02T20:25:17.648Z] [PID: 2568] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Tue Jun 02 2026 12:00:00 GMT-0300 (Waktu Standar Brasil)! Possible blocking IO or high CPU user at the same process used by node-cron.
+[2026-06-02T20:25:17.801Z] [PID: 2568] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Tue Jun 02 2026 13:00:00 GMT-0300 (Waktu Standar Brasil)! Possible blocking IO or high CPU user at the same process used by node-cron.
+[2026-06-02T20:25:17.872Z] [PID: 2568] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Tue Jun 02 2026 14:00:00 GMT-0300 (Waktu Standar Brasil)! Possible blocking IO or high CPU user at the same process used by node-cron.
+[2026-06-02T20:25:18.017Z] [PID: 2568] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Tue Jun 02 2026 15:00:00 GMT-0300 (Waktu Standar Brasil)! Possible blocking IO or high CPU user at the same process used by node-cron.
+[2026-06-02T20:25:18.714Z] [PID: 2568] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Tue Jun 02 2026 16:00:00 GMT-0300 (Waktu Standar Brasil)! Possible blocking IO or high CPU user at the same process used by node-cron.
+[2026-06-02T20:25:19.475Z] [PID: 2568] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Tue Jun 02 2026 17:00:00 GMT-0300 (Waktu Standar Brasil)! Possible blocking IO or high CPU user at the same process used by node-cron.
+node:internal/process/promises:394
+    triggerUncaughtException(err, true /* fromPromise */);
+    ^
+
+AggregateError: 
+    at C:\laragon\www\Project_absen_updated_Latest_v1.2\node_modules\express-mysql-session\index.js:384:30
+    at new Promise (<anonymous>)
+    at MySQLStore.query (C:\laragon\www\Project_absen_updated_Latest_v1.2\node_modules\express-mysql-session\index.js:381:10)
+    at C:\laragon\www\Project_absen_updated_Latest_v1.2\node_modules\express-mysql-session\index.js:372:16 {
+  code: 'ECONNREFUSED',
+  fatal: true,
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3306
+        at createConnectionError (node:net:1746:14)
+        at afterConnectMultiple (node:net:1776:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3306
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3306
+        at createConnectionError (node:net:1746:14)
+        at afterConnectMultiple (node:net:1776:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3306
+    }
+  ]
+}
+
+Node.js v24.15.0
