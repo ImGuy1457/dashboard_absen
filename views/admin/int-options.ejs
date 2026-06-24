@@ -1,0 +1,266 @@
+<%-include('../partials/head.ejs', { title: title }) %>
+<%- include('../partials/sidebar.ejs') %>
+
+<main class="md:ml-64 pt-14 md:pt-0 pb-20 md:pb-8 min-h-screen">
+  <div class="max-w-3xl mx-auto px-4 py-6 space-y-5">
+
+    <!-- Header -->
+    <div class="flex items-center gap-3">
+      <a href="/admin/dashboard" class="w-9 h-9 bg-slate-800 border border-slate-700 rounded-xl flex items-center justify-center text-slate-400 hover:text-white transition-colors">←</a>
+      <div>
+        <h1 class="text-xl font-bold text-white">📋 Kelola Opsi Absensi</h1>
+        <p class="text-sm text-slate-500">Kelola status kehadiran, tempat, dan keperluan di halaman absensi</p>
+      </div>
+    </div>
+
+    <!-- Flash -->
+    <% if (success && success.length) { %>
+      <div class="bg-green-500/10 border border-green-500/20 text-green-400 text-sm px-4 py-3 rounded-xl"><%= success[0] %></div>
+    <% } %>
+    <% if (error && error.length) { %>
+      <div class="bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-4 py-3 rounded-xl"><%= error[0] %></div>
+    <% } %>
+
+    <!-- TEMPAT SECTION -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-md">
+      <div class="px-5 py-4 border-b border-slate-800">
+        <div class="text-sm font-semibold text-white">📍 Opsi Tempat</div>
+        <div class="text-xs text-slate-500 mt-0.5">Pilihan lokasi yang tampil di form absensi</div>
+      </div>
+
+      <!-- Add Tempat -->
+      <div class="px-5 py-4 border-b border-slate-700/50 bg-slate-800/30">
+        <form action="/admin/int-options/add" method="POST" class="flex flex-col sm:flex-row gap-3" novalidate>
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          <input type="hidden" name="type" value="tempat">
+          <input type="text" name="name" placeholder="Nama tempat baru…" required
+            class="flex-1 bg-slate-800 border border-slate-700 text-white text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-sky-500 placeholder-slate-600">
+          <button type="submit" class="bg-sky-500 hover:bg-sky-600 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors whitespace-nowrap">
+            ➕ Tambah
+          </button>
+        </form>
+      </div>
+
+      <% if (!tempat || tempat.length === 0) { %>
+        <div class="text-center text-slate-600 py-8 text-sm">Belum ada opsi tempat</div>
+      <% } else { %>
+        <% tempat.forEach(opt => { %>
+        <div class="flex items-center justify-between px-5 py-3 border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors group">
+          <div class="flex items-center gap-3">
+            <span class="text-base">📍</span>
+            <span id="label-t-<%= opt.id %>" class="text-sm font-medium text-white"><%= opt.name %></span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div id="edit-t-<%= opt.id %>" class="hidden flex gap-2">
+              <form action="/admin/int-options/edit/<%= opt.id %>" method="POST" class="flex gap-2">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <input type="hidden" name="icon" value="">
+                <input type="text" name="name" value="<%= opt.name %>"
+                  class="bg-slate-700 border border-slate-600 text-white text-sm rounded-lg px-3 py-1 focus:outline-none focus:border-sky-500 w-48">
+                <button type="submit" class="text-xs bg-green-500/20 text-green-400 border border-green-500/30 px-3 py-1 rounded-lg hover:bg-green-500/30 transition-colors">✓</button>
+              </form>
+              <button onclick="cancelEdit('t','<%= opt.id %>')" class="text-xs text-slate-400 px-2 py-1">✕</button>
+            </div>
+            <button onclick="startEdit('t','<%= opt.id %>')"
+              class="text-xs bg-slate-700 text-slate-300 border border-slate-600 px-3 py-1 rounded-lg hover:bg-slate-600 transition-colors">
+              ✏️ Edit
+            </button>
+            <button type="button"
+              data-action="/admin/int-options/delete/<%= opt.id %>"
+              data-name="<%= opt.name %>"
+              onclick="openDeleteModal(this)"
+              class="text-xs bg-red-500/10 text-red-400 border border-red-500/20 px-3 py-1 rounded-lg hover:bg-red-500/20 transition-colors">
+              Hapus
+            </button>
+          </div>
+        </div>
+        <% }) %>
+      <% } %>
+      <div class="px-5 py-2.5 text-xs text-slate-600">Total: <%= tempat.length %> opsi tempat</div>
+    </div>
+
+    <!-- KEPERLUAN SECTION -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-md">
+      <div class="px-5 py-4 border-b border-slate-800">
+        <div class="text-sm font-semibold text-white">📝 Opsi Keperluan</div>
+        <div class="text-xs text-slate-500 mt-0.5">Pilihan keperluan yang tampil di form absensi</div>
+      </div>
+
+      <!-- Add Keperluan -->
+      <div class="px-5 py-4 border-b border-slate-700/50 bg-slate-800/30">
+        <form action="/admin/int-options/add" method="POST" class="flex flex-col sm:flex-row gap-3" novalidate>
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          <input type="hidden" name="type" value="keperluan">
+          <input type="text" name="icon" placeholder="Ikon (emoji)" maxlength="4"
+            class="w-24 bg-slate-800 border border-slate-700 text-white text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-orange-500 placeholder-slate-600 text-center">
+          <input type="text" name="name" placeholder="Nama keperluan baru…" required
+            class="flex-1 bg-slate-800 border border-slate-700 text-white text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-orange-500 placeholder-slate-600">
+          <button type="submit" class="bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors whitespace-nowrap">
+            ➕ Tambah
+          </button>
+        </form>
+      </div>
+
+      <% if (!keperluan || keperluan.length === 0) { %>
+        <div class="text-center text-slate-600 py-8 text-sm">Belum ada opsi keperluan</div>
+      <% } else { %>
+        <% keperluan.forEach(opt => { %>
+        <div class="flex items-center justify-between px-5 py-3 border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors group">
+          <div class="flex items-center gap-3">
+            <span class="text-base"><%= opt.icon || '📌' %></span>
+            <span id="label-k-<%= opt.id %>" class="text-sm font-medium text-white"><%= opt.name %></span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div id="edit-k-<%= opt.id %>" class="hidden flex gap-2">
+              <form action="/admin/int-options/edit/<%= opt.id %>" method="POST" class="flex gap-2">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <input type="text" name="icon" value="<%= opt.icon || '' %>" placeholder="Ikon"
+                  class="bg-slate-700 border border-slate-600 text-white text-sm rounded-lg px-2 py-1 focus:outline-none w-14 text-center">
+                <input type="text" name="name" value="<%= opt.name %>"
+                  class="bg-slate-700 border border-slate-600 text-white text-sm rounded-lg px-3 py-1 focus:outline-none focus:border-orange-500 w-40">
+                <button type="submit" class="text-xs bg-green-500/20 text-green-400 border border-green-500/30 px-3 py-1 rounded-lg hover:bg-green-500/30 transition-colors">✓</button>
+              </form>
+              <button onclick="cancelEdit('k','<%= opt.id %>')" class="text-xs text-slate-400 px-2 py-1">✕</button>
+            </div>
+            <button onclick="startEdit('k','<%= opt.id %>')"
+              class="text-xs bg-slate-700 text-slate-300 border border-slate-600 px-3 py-1 rounded-lg hover:bg-slate-600 transition-colors">
+              ✏️ Edit
+            </button>
+            <button type="button"
+              data-action="/admin/int-options/delete/<%= opt.id %>"
+              data-name="<%= opt.name %>"
+              onclick="openDeleteModal(this)"
+              class="text-xs bg-red-500/10 text-red-400 border border-red-500/20 px-3 py-1 rounded-lg hover:bg-red-500/20 transition-colors">
+              Hapus
+            </button>
+          </div>
+        </div>
+        <% }) %>
+      <% } %>
+      <div class="px-5 py-2.5 text-xs text-slate-600">Total: <%= keperluan.length %> opsi keperluan</div>
+    </div>
+
+  </div>
+</main>
+
+<!-- Modal Konfirmasi Hapus -->
+<div id="deleteModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm">
+  <div class="bg-slate-800 border border-slate-700/50 rounded-2xl p-8 w-full max-w-sm mx-4 flex flex-col items-center gap-4 text-center">
+    <div class="w-16 h-16 bg-red-500/20 rounded-2xl flex items-center justify-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>
+      </svg>
+    </div>
+    <div>
+      <h2 class="text-white font-bold text-lg mb-1">Konfirmasi Hapus</h2>
+      <p class="text-slate-400 text-sm leading-relaxed">Opsi ini akan dihapus secara permanen.</p>
+    </div>
+    <div class="bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 w-full flex items-center gap-3">
+      <div class="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0">
+        <span class="text-red-400 text-xs">🗑</span>
+      </div>
+      <div class="text-left">
+        <p class="text-slate-500 text-xs">Hapus opsi</p>
+        <p id="deleteModalName" class="font-medium text-sm text-white"></p>
+      </div>
+    </div>
+    <div class="flex gap-3 w-full mt-1">
+      <button onclick="closeDeleteModal()"
+        class="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 py-2.5 rounded-xl text-sm transition-colors">
+        ✕ Batal
+      </button>
+      <form id="deleteModalForm" method="POST" class="flex-1">
+        <input type="hidden" name="_csrf" id="deleteModalCsrf" value="" />
+        <button type="submit"
+          class="w-full bg-red-600 hover:bg-red-700 text-white py-2.5 rounded-xl text-sm font-semibold transition-colors">
+          🗑 Hapus
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Alert Validasi -->
+<div id="alertModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm">
+  <div class="bg-slate-800 border border-slate-700/50 rounded-2xl p-8 w-full max-w-sm mx-4 flex flex-col items-center gap-4 text-center">
+    <div class="w-16 h-16 bg-yellow-500/20 rounded-2xl flex items-center justify-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+      </svg>
+    </div>
+    <div>
+      <h2 id="alertTitle" class="text-white font-bold text-lg mb-1"></h2>
+      <p id="alertMessage" class="text-slate-400 text-sm leading-relaxed"></p>
+    </div>
+    <button onclick="closeAlert()"
+      class="w-full bg-sky-500 hover:bg-sky-600 text-white py-2.5 rounded-xl text-sm font-semibold transition-colors">
+      ✅ Oke, Mengerti
+    </button>
+  </div>
+</div>
+
+<%-include('../partials/bottomnav.ejs') %>
+<%- include('../partials/footer.ejs') %>
+
+<script>
+// ---- Inline Edit (Tempat & Keperluan) ----
+window.startEdit = function startEdit(prefix, id) {
+  document.getElementById(`label-${prefix}-${id}`).classList.add('hidden');
+  document.getElementById(`edit-${prefix}-${id}`).classList.remove('hidden');
+}
+window.cancelEdit = function cancelEdit(prefix, id) {
+  document.getElementById(`label-${prefix}-${id}`).classList.remove('hidden');
+  document.getElementById(`edit-${prefix}-${id}`).classList.add('hidden');
+}
+
+// ---- Delete Modal ----
+window.openDeleteModal = function openDeleteModal(button) {
+  const action = button.dataset.action;
+  const name = button.dataset.name || '';
+
+  document.getElementById('deleteModalForm').action = action;
+  document.getElementById('deleteModalName').textContent = name;
+  document.getElementById('deleteModalCsrf').value = '<%= typeof csrfToken !== "undefined" ? csrfToken : "" %>';
+  const modal = document.getElementById('deleteModal');
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+window.closeDeleteModal = function closeDeleteModal() {
+  const modal = document.getElementById('deleteModal');
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+}
+document.getElementById('deleteModal').addEventListener('click', function(e) {
+  if (e.target === this) closeDeleteModal();
+});
+
+// ---- Alert Modal ----
+window.showAlert = function showAlert(title, message) {
+  document.getElementById('alertTitle').textContent = title;
+  document.getElementById('alertMessage').textContent = message;
+  const modal = document.getElementById('alertModal');
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+window.closeAlert = function closeAlert() {
+  const modal = document.getElementById('alertModal');
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+}
+document.getElementById('alertModal').addEventListener('click', function(e) {
+  if (e.target === this) closeAlert();
+});
+
+document.querySelectorAll('form[action="/admin/int-options/add"]').forEach(form => {
+  form.addEventListener('submit', function(e) {
+    const nameInput = this.querySelector('input[name="name"]');
+    if (!nameInput.value.trim()) {
+      e.preventDefault();
+      const type = this.querySelector('input[name="type"]').value;
+      const label = type === 'tempat' ? 'Opsi Tempat' : 'Opsi Keperluan';
+      showAlert(`${label} Belum Diisi Woi lah `, `Ketik nama ${type} terlebih dahulu sebelum menekan tombol Tambah.`);
+      nameInput.focus();
+    }
+  });
+});
+</script>

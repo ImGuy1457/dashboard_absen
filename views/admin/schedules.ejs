@@ -1,0 +1,229 @@
+<%-include('../partials/head.ejs', { title: title }) %>
+<%- include('../partials/sidebar.ejs') %>
+
+<main class="md:ml-64 pt-14 md:pt-0 pb-20 md:pb-8 min-h-screen">
+  <div class="max-w-3xl mx-auto px-4 py-6 space-y-5">
+
+    <!-- Header -->
+    <div class="flex items-center gap-3">
+      <a href="/admin/dashboard" class="w-9 h-9 bg-slate-800 border border-slate-700 rounded-xl flex items-center justify-center text-slate-400 hover:text-white transition-colors">←</a>
+      <div>
+        <h1 class="text-xl font-bold text-white">⏰ Pengaturan Jadwal Jabatan</h1>
+        <p class="text-sm text-slate-500">Atur jam masuk & pulang per jabatan. Jabatan tanpa jadwal menggunakan default global.</p>
+      </div>
+    </div>
+
+    <!-- Flash -->
+    <% if (success && success.length) { %>
+      <div class="bg-green-500/10 border border-green-500/20 text-green-400 text-sm px-4 py-3 rounded-xl"><%= success[0] %></div>
+    <% } %>
+    <% if (error && error.length) { %>
+      <div class="bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-4 py-3 rounded-xl"><%= error[0] %></div>
+    <% } %>
+
+    <!-- Info Box -->
+    <div class="bg-sky-500/5 border border-sky-500/20 rounded-2xl p-4 text-sm text-sky-300">
+      <div class="font-semibold mb-1">ℹ️ Cara kerja jadwal:</div>
+      <ul class="text-sky-300/80 space-y-1 text-xs">
+        <li>• <b>Datang Terlambat</b>: absen masuk setelah jam masuk + toleransi keterlambatan.</li>
+        <li>• <b>Pulang Terlalu Awal</b>: absen pulang sebelum jam pulang yang dikonfigurasi.</li>
+        <li>• Gunakan opsi <b>Default (Semua Jabatan)</b> untuk menyetel jam masuk/pulang global sistem.</li>
+      </ul>
+    </div>
+
+    <!-- Form Tambah/Edit -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+      <div class="text-sm font-semibold text-white mb-4">➕ Tambah / Perbarui Jadwal Jabatan</div>
+      <form id="formJadwal" action="/admin/schedules/save" method="POST" class="space-y-4">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-x-5 gap-y-4">
+
+          <!-- Jabatan -->
+          <div class="sm:col-span-1 flex flex-col gap-1.5">
+            <label class="block text-xs text-slate-400 font-medium">Jabatan</label>
+            <select name="role_id" id="roleSelect"
+              class="w-full bg-slate-800 border border-slate-700 text-white text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-sky-500">
+              <option value="">⚙️ Default (Semua Jabatan)</option>
+              <% rolesList.forEach(r => { %>
+                <option value="<%= r.id %>"><%= r.name %></option>
+              <% }) %>
+            </select>
+            
+            <input type="text" name="new_role_name" id="roleCustom" placeholder="Atau ketik jabatan baru…"
+              class="w-full bg-slate-800 border border-slate-700 text-white text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-sky-500 placeholder-slate-600">
+            <p class="text-[10px] text-slate-500">Pilih dari dropdown atau ketik nama jabatan baru</p>
+          </div>
+
+          <!-- Jam Masuk -->
+          <div class="flex flex-col gap-1.5">
+            <label class="block text-xs text-slate-400 font-medium">🟢 Jam Masuk & Toleransi</label>
+            <div class="flex gap-2">
+              <input type="time" name="jam_masuk" value="08:00" required
+                class="w-full bg-slate-800 border border-slate-700 text-white text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:border-green-500">
+              <input type="number" name="toleransi_keterlambatan" value="0" placeholder="Tol (menit)" min="0"
+                class="w-24 bg-slate-800 border border-slate-700 text-white text-sm rounded-xl px-2 py-2.5 focus:outline-none focus:border-green-500 text-center">
+            </div>
+            <p class="text-[10px] text-slate-500">Waktu masuk + toleransi (dalam menit)</p>
+          </div>
+
+          <!-- Jam Pulang & Window Fleksibel -->
+          <div class="flex flex-col gap-1.5">
+            <label class="block text-xs text-slate-400 font-medium">🔴 Jam Pulang & Window</label>
+            <div class="flex gap-2">
+              <input type="time" name="jam_pulang" value="17:00" required
+                class="w-full bg-slate-800 border border-slate-700 text-white text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:border-red-500">
+              <input type="number" name="flexible_window_minutes" value="0" placeholder="Win (menit)" min="0"
+                class="w-24 bg-slate-800 border border-slate-700 text-white text-sm rounded-xl px-2 py-2.5 focus:outline-none focus:border-red-500 text-center">
+            </div>
+            <p class="text-[10px] text-slate-500">Waktu pulang + Jendela fleksibel check-in/out</p>
+          </div>
+        </div>
+
+        <button type="submit" class="bg-sky-500 hover:bg-sky-600 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition-colors mt-2">
+          💾 Simpan Jadwal
+        </button>
+      </form>
+    </div>
+
+    <!-- Daftar Jadwal -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-800 flex items-center justify-between">
+        <div class="text-sm font-semibold text-white">Daftar Jadwal Tersimpan</div>
+        <div class="text-xs text-slate-500"><%= schedules.length %> jadwal khusus</div>
+      </div>
+
+      <% if (!schedules || schedules.length === 0) { %>
+        <div class="text-center text-slate-600 py-10">
+          <div class="text-3xl mb-2">📭</div>
+          <div class="text-sm">Belum ada jadwal khusus</div>
+          <div class="text-xs mt-1">Semua jabatan menggunakan default global</div>
+        </div>
+      <% } else { %>
+        <div class="divide-y divide-slate-800/50">
+          <% schedules.forEach(s => { %>
+          <div class="flex items-center justify-between px-5 py-3.5 hover:bg-slate-800/30 transition-colors">
+            <div>
+              <div class="text-sm font-medium text-white">
+                <%= s.role_name ? s.role_name : '⚙️ Default Global (Semua Jabatan)' %>
+              </div>
+              <% if (s.toleransi_keterlambatan > 0 || s.flexible_window_minutes > 0) { %>
+                <div class="text-[10px] text-slate-500 mt-0.5">
+                  <% if (s.toleransi_keterlambatan > 0) { %>Toleransi: <%= s.toleransi_keterlambatan %> mnt. <% } %>
+                  <% if (s.flexible_window_minutes > 0) { %>Window Fleksibel: <%= s.flexible_window_minutes %> mnt.<% } %>
+                </div>
+              <% } %>
+            </div>
+            <div class="flex items-center gap-4">
+              <span class="text-sm text-green-400 font-mono">🟢 <%= String(s.jam_masuk).slice(0,5) %></span>
+              <span class="text-sm text-red-400 font-mono">🔴 <%= String(s.jam_pulang).slice(0,5) %></span>
+              <form action="/admin/schedules/delete/<%= s.id %>" method="POST"
+  data-hapus="true"
+  data-nama="<%= s.role_name ? s.role_name : 'Default Global' %>">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <button type="submit" class="text-xs bg-red-500/10 text-red-400 border border-red-500/20 px-3 py-1 rounded-lg hover:bg-red-500/20 transition-colors">
+                  Hapus
+                </button>
+              </form>
+            </div>
+          </div>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+
+  </div>
+</main>
+
+<!-- Custom Modal & Toast -->
+<div id="modalHapus" class="hidden fixed inset-0 z-50 flex items-center justify-center">
+  <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="modalBackdrop"></div>
+  <div class="relative bg-slate-800 border border-slate-700 rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="w-10 h-10 rounded-xl bg-red-500/15 border border-red-500/25 flex items-center justify-center text-lg flex-shrink-0">🗑️</div>
+      <div>
+        <div class="text-base font-semibold text-white">Hapus Jadwal</div>
+        <div class="text-xs text-slate-500 mt-0.5">Tindakan ini tidak dapat dibatalkan</div>
+      </div>
+    </div>
+    <p class="text-sm text-slate-400 bg-red-500/5 border border-red-500/10 rounded-xl px-4 py-3 mb-5 leading-relaxed">
+      Apakah kamu yakin ingin menghapus jadwal <b id="modalNamaJadwal" class="text-red-300"></b>? Data ini akan dihapus secara permanen dari sistem.
+    </p>
+    <div class="flex gap-2.5">
+      <button onclick="tutupModal()" class="flex-1 bg-transparent border border-slate-600 text-slate-400 rounded-xl py-2.5 text-sm font-medium hover:bg-slate-700 transition-colors">
+        Batal
+      </button>
+      <button id="btnKonfirmasiHapus" class="flex-1 bg-red-500/80 hover:bg-red-500 border border-red-500/40 text-white rounded-xl py-2.5 text-sm font-semibold transition-colors">
+        Ya, Hapus
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Validasi -->
+<div id="toastValidasi" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+  <div class="flex items-center gap-2.5 bg-yellow-500/10 border border-yellow-500/30 text-yellow-300 text-sm px-4 py-3 rounded-xl shadow-xl backdrop-blur-sm whitespace-nowrap">
+    <span class="text-base">⚠️</span>
+    <span id="toastPesan">Silakan isi data terlebih dahulu!</span>
+  </div>
+</div>
+
+<script>
+  let formHapusPending = null;
+
+  // Hubungkan input agar saling membersihkan
+  document.getElementById('roleSelect').addEventListener('change', function() {
+    if (this.value) document.getElementById('roleCustom').value = '';
+  });
+  document.getElementById('roleCustom').addEventListener('input', function() {
+    if (this.value.trim() !== '') document.getElementById('roleSelect').value = '';
+  });
+
+  // Intercept semua form hapus → tampilkan modal custom
+  document.querySelectorAll('form[data-hapus]').forEach(form => {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const nama = this.dataset.nama || 'ini';
+      document.getElementById('modalNamaJadwal').textContent = nama;
+      formHapusPending = this;
+      document.getElementById('modalHapus').classList.remove('hidden');
+    });
+  });
+
+  document.getElementById('btnKonfirmasiHapus').addEventListener('click', function() {
+    if (formHapusPending) {
+      formHapusPending.submit();
+      formHapusPending = null;
+    }
+    tutupModal();
+  });
+
+  document.getElementById('modalBackdrop').addEventListener('click', tutupModal);
+
+  function tutupModal() {
+    document.getElementById('modalHapus').classList.add('hidden');
+    formHapusPending = null;
+  }
+
+  // Validasi form simpan
+  document.getElementById('formJadwal').addEventListener('submit', function(e) {
+    const jamMasuk = this.querySelector('[name="jam_masuk"]').value.trim();
+    const jamPulang = this.querySelector('[name="jam_pulang"]').value.trim();
+
+    if (!jamMasuk || !jamPulang) {
+      e.preventDefault();
+      tampilkanToast('Jam masuk dan jam pulang wajib diisi!');
+      return;
+    }
+  });
+
+  function tampilkanToast(pesan) {
+    const toast = document.getElementById('toastValidasi');
+    document.getElementById('toastPesan').textContent = pesan;
+    toast.classList.remove('hidden');
+    setTimeout(() => toast.classList.add('hidden'), 3500);
+  }
+</script>
+
+<%-include('../partials/bottomnav.ejs') %>
+<%- include('../partials/footer.ejs') %>

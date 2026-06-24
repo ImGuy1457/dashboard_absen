@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#020617">
+  <title><%= title %> – Dashboard Absen</title>
+
+  <!-- ✅ WAJIB PALING ATAS: Cegah flash putih/hitam -->
+  <style>
+    html, body { background-color: #020617 !important; color: #f1f5f9; }
+
+    /* View Transitions API — Chrome 111+, Edge 111+, Opera 97+ */
+    @view-transition { navigation: auto; }
+
+    ::view-transition-old(root) {
+      animation: fade-out 150ms ease-out forwards;
+    }
+    ::view-transition-new(root) {
+      animation: fade-in 200ms ease-in forwards;
+    }
+
+    @keyframes fade-out {
+      from { opacity: 1; }
+      to   { opacity: 0; }
+    }
+    @keyframes fade-in {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+  </style>
+
+  <!-- TailwindCSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            sky: {
+              350: '#5bc8f0',
+              450: '#25b3e8',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen antialiased">
+
+  <!-- Toast Container -->
+  <div id="toastContainer" class="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] flex flex-col gap-2 items-center pointer-events-none w-full max-w-sm px-4"></div>
+
+

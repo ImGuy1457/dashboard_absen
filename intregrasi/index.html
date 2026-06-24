@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <title>Absensi Online</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ══════════════════════════════════════
+        THEME TOKENS — sama persis dengan login.html
+       ══════════════════════════════════════ */
+    :root,
+    [data-theme="dark"] {
+      --orange:      #ff6a00;
+      --orange-deep: #c84e00;
+      --orange-glow: rgba(255,106,0,.35);
+
+      --bg-body:     #070c17;
+      --bg-card:     rgba(10,17,32,.92);
+      --bg-input:    rgba(255,255,255,.04);
+      --bg-input-focus: rgba(255,106,0,.05);
+
+      --border-dim:  rgba(255,106,0,.13);
+      --border-mid:  rgba(255,106,0,.30);
+      --border-input: rgba(255,255,255,.08);
+
+      --text-body:   #ffffff;
+      --text-muted:  rgba(255,255,255,.32);
+      --text-dim:    rgba(255,255,255,.6);
+      --text-label:  rgba(255,106,0,.7);
+
+      --red:         #ff5252;
+      --green:       #4cffb4;
+      --blue:        #4cc9ff;
+
+      --grid-color:  rgba(255,106,0,.03);
+      --orb1-color:  rgba(255,100,0,.35);
+      --orb2-color:  rgba(255,50,0,.2);
+
+      --card-shadow: 0 4px 32px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.03);
+      --input-glow:  0 0 0 3px rgba(255,106,0,.1);
+
+      --topbar-bg:   rgba(7,12,23,.85);
+      --topbar-border: rgba(255,106,0,.13);
+
+      --section-head-color: rgba(255,106,0,.8);
+
+      --step-bg:        rgba(255,255,255,.03);
+      --step-done-bg:   rgba(76,255,180,.08);
+      --step-active-bg: rgba(255,106,0,.08);
+
+      --riwayat-bg:     rgba(255,255,255,.03);
+      --riwayat-border: rgba(255,255,255,.06);
+
+      --time-bar-bg:    rgba(255,255,255,.03);
+      --time-bar-border:rgba(255,255,255,.06);
+
+      --net-pill-bg:    rgba(255,255,255,.04);
+      --net-pill-border:rgba(255,255,255,.07);
+
+      --toggle-bg:           rgba(255,255,255,.07);
+      --toggle-border:       rgba(255,255,255,.12);
+      --toggle-icon-color:   rgba(255,255,255,.65);
+      --toggle-active-bg:    rgba(255,106,0,.18);
+      --toggle-active-border:rgba(255,106,0,.4);
+      --toggle-active-icon:  #ff6a00;
+
+      --logout-bg:     rgba(255,82,82,.1);
+      --logout-border: rgba(255,82,82,.2);
+      --logout-color:  #ff7070;
+    }
+
+    [data-theme="light"] {
+      --orange:      #EA7A1F;
+      --orange-deep: #C96A12;
+      --orange-glow: rgba(234,122,31,.28);
+
+      --bg-body:     #F8FAFC;
+      --bg-card:     #FFFFFF;
+      --bg-input:    #F8FAFC;
+      --bg-input-focus: rgba(234,122,31,.05);
+
+      --border-dim:  #E5E7EB;
+      --border-mid:  rgba(234,122,31,.35);
+      --border-input: #E5E7EB;
+
+      --text-body:   #1A1F2E;
+      --text-muted:  rgba(30,35,50,.45);
+      --text-dim:    rgba(30,35,50,.7);
+      --text-label:  #C96A12;
+
+      --red:   #E53E3E;
+      --green: #0F9B6B;
+      --blue:  #0077CC;
+
+      --grid-color:  rgba(234,122,31,.04);
+      --orb1-color:  rgba(234,122,31,.12);
+      --orb2-color:  rgba(200,80,0,.08);
+
+      --card-shadow: 0 1px 0 0 #E5E7EB, 0 8px 40px rgba(0,0,0,.08);
+      --input-glow:  0 0 0 3px rgba(234,122,31,.12);
+
+      --topbar-bg:   rgba(248,250,252,.92);
+      --topbar-border: #E5E7EB;
+
+      --section-head-color: #C96A12;
+
+      --step-bg:        rgba(0,0,0,.03);
+      --step-done-bg:   rgba(15,155,107,.08);
+      --step-active-bg: rgba(234,122,31,.08);
+
+      --riwayat-bg:     rgba(0,0,0,.02);
+      --riwayat-border: #E5E7EB;
+
+      --time-bar-bg:    rgba(0,0,0,.02);
+      --time-bar-border: #E5E7EB;
+
+      --net-pill-bg:    rgba(0,0,0,.03);
+      --net-pill-border: #E5E7EB;
+
+      --toggle-bg:           rgba(0,0,0,.04);
+      --toggle-border:       #E5E7EB;
+      --toggle-icon-color:   rgba(30,35,50,.5);
+      --toggle-active-bg:    rgba(234,122,31,.12);
+      --toggle-active-border:rgba(201,106,18,.4);
+      --toggle-active-icon:  #C96A12;
+
+      --logout-bg:     rgba(229,62,62,.08);
+      --logout-border: rgba(229,62,62,.25);
+      --logout-color:  #E53E3E;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg-body);
+      color: var(--text-body);
+      min-height: 100vh;
+      transition: background .35s ease, color .35s ease;
+    }
+
+    /* ── THEME TOGGLE ── */
+    .theme-toggle-wrap {
+      position: fixed; top: 12px; right: 280px; z-index: 200;
+    }
+    .theme-toggle {
+      display: flex; align-items: center;
+      background: var(--toggle-bg); border: 1px solid var(--toggle-border);
+      border-radius: 99px; padding: 4px;
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      transition: background .3s, border-color .3s;
+    }
+    .theme-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 34px; height: 34px; border-radius: 50%; border: none;
+      background: transparent; cursor: pointer; font-size: 16px;
+      color: var(--toggle-icon-color); transition: all .25s cubic-bezier(.22,1,.36,1);
+    }
+    .theme-btn.active {
+      background: var(--toggle-active-bg); border: 1px solid var(--toggle-active-border);
+      color: var(--toggle-active-icon); box-shadow: 0 2px 8px rgba(0,0,0,.12);
+    }
+    .theme-btn:not(.active):hover { background: rgba(128,128,128,.08); }
+
+    /* ── LOADING SCREEN ── */
+    #loadingScreen {
+      position: fixed; inset: 0; z-index: 9999;
+      background: var(--bg-body);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 20px;
+      transition: opacity .5s, visibility .5s;
+    }
+    #loadingScreen.hidden { opacity: 0; visibility: hidden; }
+
+    .loading-logo {
+      width: 64px; height: 64px; border-radius: 16px;
+      background: rgba(255,106,0,.1);
+      border: 1.5px solid var(--border-mid);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px;
+      animation: pulse-ring 1.4s ease-in-out infinite;
+    }
+    @keyframes pulse-ring {
+      0%,100% { box-shadow: 0 0 0 0 rgba(255,106,0,.4); }
+      50%      { box-shadow: 0 0 0 14px rgba(255,106,0,0); }
+    }
+    .loading-bar-wrap { width: 160px; height: 3px; background: rgba(255,255,255,.07); border-radius: 99px; overflow: hidden; }
+    .loading-bar { height: 100%; width: 0; background: linear-gradient(90deg,var(--orange),#ffaa00); border-radius: 99px; transition: width .4s ease; }
+    .loading-text { font-size: 12px; color: var(--text-muted); letter-spacing: .12em; text-transform: uppercase; }
+
+    /* ── BACKGROUND ── */
+    .bg { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+    .bg-grid {
+      position: absolute; inset: 0;
+      background-image: linear-gradient(var(--grid-color) 1px, transparent 1px),
+                        linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+      background-size: 52px 52px;
+      transition: background-image .35s;
+    }
+    .orb { position: absolute; border-radius: 50%; filter: blur(90px); opacity: .4; animation: drift 14s ease-in-out infinite alternate; }
+    .orb-1 { width:380px;height:380px;background:radial-gradient(circle,var(--orb1-color),transparent 70%);top:-120px;left:-80px; }
+    .orb-2 { width:260px;height:260px;background:radial-gradient(circle,var(--orb2-color),transparent 70%);bottom:-80px;right:-60px;animation-duration:18s;animation-delay:-6s; }
+    @keyframes drift { from{transform:translate(0,0)scale(1)} to{transform:translate(24px,16px)scale(1.06)} }
+
+    /* ── TOAST ── */
+    #toastWrap {
+      position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+      z-index: 9000; display: flex; flex-direction: column; gap: 8px; align-items: center;
+      pointer-events: none; min-width: 240px;
+    }
+    .toast {
+      padding: 12px 20px; border-radius: 12px;
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      font-size: 13.5px; font-weight: 500;
+      border: 1px solid rgba(255,255,255,.08);
+      box-shadow: 0 8px 32px rgba(0,0,0,.5);
+      animation: toastIn .35s cubic-bezier(.22,1,.36,1) both;
+      pointer-events: all; white-space: nowrap; letter-spacing: .01em;
+    }
+    .toast.success { background: rgba(76,255,180,.12); border-color: rgba(76,255,180,.25); color: var(--green); }
+    .toast.error   { background: rgba(255,82,82,.12);  border-color: rgba(255,82,82,.25);  color: #ff8080; }
+    .toast.info    { background: rgba(255,106,0,.12);  border-color: rgba(255,106,0,.25);  color: #ffaa66; }
+    .toast.warning { background: rgba(255,200,0,.12);  border-color: rgba(255,200,0,.25);  color: #ffd166; }
+    [data-theme="light"] .toast.success { background: rgba(15,155,107,.1); border-color: rgba(15,155,107,.3); color: #0F9B6B; }
+    [data-theme="light"] .toast.error   { background: rgba(229,62,62,.1);  border-color: rgba(229,62,62,.3);  color: #E53E3E; }
+    [data-theme="light"] .toast.info    { background: rgba(234,122,31,.1); border-color: rgba(234,122,31,.3); color: #C96A12; }
+    [data-theme="light"] .toast.warning { background: rgba(234,180,0,.1);  border-color: rgba(234,180,0,.3);  color: #B8860B; }
+    .toast.out     { animation: toastOut .3s ease forwards; }
+    @keyframes toastIn  { from{opacity:0;transform:translateY(-16px)scale(.94)} to{opacity:1;transform:translateY(0)scale(1)} }
+    @keyframes toastOut { from{opacity:1;transform:translateY(0)scale(1)} to{opacity:0;transform:translateY(-12px)scale(.94)} }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--topbar-bg); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--topbar-border);
+      padding: 14px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      transition: background .35s, border-color .35s;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 12px; }
+    .topbar-logo {
+      width: 38px; height: 38px; border-radius: 10px;
+      background: rgba(255,106,0,.1); border: 1px solid var(--border-mid);
+      display: flex; align-items: center; justify-content: center; font-size: 18px;
+      transition: border-color .35s;
+    }
+    .topbar-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--text-body); transition: color .35s; }
+    .topbar-sub   { font-size: 11px; color: var(--text-muted); margin-top: 1px; transition: color .35s; }
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+
+    .net-pill {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase;
+      padding: 5px 10px; border-radius: 99px;
+      background: var(--net-pill-bg); border: 1px solid var(--net-pill-border);
+      transition: all .3s;
+    }
+    .net-pill .dot { width: 6px; height: 6px; border-radius: 50%; }
+    .net-pill.online  .dot { background: var(--green); box-shadow: 0 0 6px rgba(76,255,180,.5); }
+    .net-pill.offline .dot { background: var(--red); }
+    .net-pill.online  { color: var(--green); border-color: rgba(76,255,180,.2); }
+    .net-pill.offline { color: var(--red);   border-color: rgba(255,82,82,.2); }
+    [data-theme="light"] .net-pill.online  { color: #0F9B6B; border-color: rgba(15,155,107,.25); }
+    [data-theme="light"] .net-pill.offline { color: #E53E3E; border-color: rgba(229,62,62,.25); }
+
+    .device-badge {
+      font-size: 10px; letter-spacing: .06em; text-transform: uppercase;
+      padding: 5px 9px; border-radius: 99px;
+      background: var(--net-pill-bg); border: 1px solid var(--net-pill-border);
+      color: var(--text-dim);
+      transition: all .35s;
+    }
+
+    .btn-logout {
+      padding: 7px 14px; border-radius: 8px;
+      background: var(--logout-bg); border: 1px solid var(--logout-border);
+      color: var(--logout-color); font-size: 12px; font-family: 'Syne', sans-serif;
+      font-weight: 600; letter-spacing: .06em;
+      cursor: pointer; transition: all .2s;
+    }
+    .btn-logout:hover { opacity: .8; }
+
+    /* ── MAIN CONTAINER ── */
+    .container {
+      position: relative; z-index: 10;
+      max-width: 600px; margin: 0 auto;
+      padding: 24px 16px 60px;
+    }
+
+    /* ── SECTION CARD ── */
+    .section-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-dim);
+      border-radius: 18px; overflow: hidden;
+      margin-bottom: 16px;
+      box-shadow: var(--card-shadow);
+      transition: background .35s, border-color .35s, box-shadow .35s;
+    }
+    .section-head {
+      padding: 16px 20px; border-bottom: 1px solid var(--riwayat-border);
+      display: flex; align-items: center; gap: 10px;
+      font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700;
+      letter-spacing: .06em; text-transform: uppercase;
+      color: var(--section-head-color);
+      transition: color .35s, border-color .35s;
+    }
+    .section-body { padding: 20px; }
+
+    /* ── STEP INDICATOR ── */
+    .steps {
+      display: flex; gap: 0;
+      background: var(--step-bg); border-radius: 12px;
+      padding: 4px; margin-bottom: 20px;
+      transition: background .35s;
+    }
+    .step-item {
+      flex: 1; text-align: center; padding: 10px 6px;
+      border-radius: 9px; font-size: 12px; font-weight: 500;
+      color: var(--text-muted); transition: all .3s; cursor: default;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+    }
+    .step-item .step-icon { font-size: 18px; line-height: 1; }
+    .step-item.done   { color: var(--green);  background: var(--step-done-bg); }
+    .step-item.active { color: var(--orange); background: var(--step-active-bg); }
+
+    /* ── CAMERA ── */
+    .cam-wrap { position: relative; border-radius: 14px; overflow: hidden; background: #000; aspect-ratio: 3/4; }
+    #video { width: 100%; height: 100%; object-fit: cover; display: block; transform: scaleX(-1) }
+    .cam-overlay {
+      position: absolute; inset: 0; pointer-events: none;
+      border: 2px solid rgba(255,106,0,.25); border-radius: 14px;
+    }
+    .cam-overlay::before, .cam-overlay::after {
+      content: ''; position: absolute; width: 22px; height: 22px;
+      border-color: var(--orange); border-style: solid;
+    }
+    .cam-overlay::before { top: 10px; left: 10px; border-width: 2px 0 0 2px; border-radius: 4px 0 0 0; }
+    .cam-overlay::after  { bottom: 10px; right: 10px; border-width: 0 2px 2px 0; border-radius: 0 0 4px 0; }
+
+    .cam-status {
+      position: absolute; top: 12px; right: 14px;
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(0,0,0,.55); backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,.08); border-radius: 99px;
+      padding: 5px 10px; font-size: 11px; color: rgba(255,255,255,.7);
+    }
+    .rec-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--red); animation: blink 1.2s ease-in-out infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    .shutter-wrap { display: flex; justify-content: center; gap: 14px; margin-top: 14px; }
+    .btn-shutter {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: linear-gradient(135deg,var(--orange),var(--orange-deep));
+      border: 3px solid rgba(255,255,255,.15);
+      box-shadow: 0 0 0 5px rgba(255,106,0,.2), 0 8px 24px rgba(255,106,0,.35);
+      cursor: pointer; font-size: 26px;
+      display: flex; align-items: center; justify-content: center;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .btn-shutter:hover { transform: scale(1.07); }
+    .btn-shutter:active { transform: scale(.95); }
+    .btn-retry-cam {
+      padding: 9px 20px; border-radius: 8px;
+      background: rgba(255,106,0,.1); border: 1px solid var(--border-mid);
+      color: var(--orange); font-size: 13px; cursor: pointer; transition: all .2s;
+    }
+    .btn-retry-cam:hover { background: rgba(255,106,0,.2); }
+
+    #fotoPreview {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      border-radius: 14px; display: none;
+      border: 2px solid rgba(76,255,180,.35);
+      z-index: 2;
+    }
+    .btn-ulang {
+      display: inline-flex; align-items: center; gap: 7px;
+      margin-top: 10px;
+      padding: 9px 18px; border-radius: 8px;
+      background: var(--net-pill-bg); border: 1px solid var(--net-pill-border);
+      color: var(--text-dim); font-size: 13px; cursor: pointer; transition: all .2s;
+    }
+    .btn-ulang:hover { opacity: .8; }
+
+    /* ── FORM FIELDS ── */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width:480px) { .form-grid { grid-template-columns: 1fr; } }
+
+    .form-group { display: flex; flex-direction: column; gap: 7px; }
+    .form-label { font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-label); font-weight: 500; transition: color .35s; }
+    .form-group select,
+    .form-group input {
+      padding: 12px 14px; border-radius: 10px;
+      background: var(--bg-input); border: 1px solid var(--border-input);
+      color: var(--text-body); font-family: 'DM Sans', sans-serif; font-size: 14px;
+      outline: none; appearance: none; -webkit-appearance: none;
+      transition: border-color .2s, box-shadow .2s, background .35s, color .35s;
+    }
+    .form-group select option { background: var(--bg-card); color: var(--text-body); }
+    .form-group input::placeholder { color: var(--text-muted); }
+    .form-group select:focus, .form-group input:focus {
+      border-color: var(--orange); background: var(--bg-input-focus);
+      box-shadow: var(--input-glow);
+    }
+    .form-group select[disabled] {
+      cursor: default; opacity: 1;
+      border-color: rgba(76,255,180,.2); background: rgba(76,255,180,.04); color: var(--green);
+    }
+    [data-theme="light"] .form-group select[disabled] {
+      border-color: rgba(15,155,107,.25); background: rgba(15,155,107,.05); color: #0F9B6B;
+    }
+
+    /* ── LOCATION BTN ── */
+    .btn-lokasi {
+      padding: 12px 14px; border-radius: 10px;
+      background: rgba(255,106,0,.08); border: 1px solid var(--border-mid);
+      color: var(--orange); font-size: 14px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: all .2s; font-family: 'DM Sans', sans-serif;
+      width: 100%;
+    }
+    .btn-lokasi:hover { background: rgba(255,106,0,.15); }
+    .btn-lokasi.success { border-color: rgba(76,255,180,.3); background: rgba(76,255,180,.06); color: var(--green); }
+    [data-theme="light"] .btn-lokasi.success { border-color: rgba(15,155,107,.3); background: rgba(15,155,107,.06); color: #0F9B6B; }
+    .btn-lokasi.loading { opacity: .7; cursor: not-allowed; }
+
+    .loc-spinner { width: 14px; height: 14px; border: 2px solid rgba(255,106,0,.3); border-top-color: var(--orange); border-radius: 50%; animation: spin .65s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .lokasi-text { font-size: 12px; color: var(--text-dim); margin-top: 6px; min-height: 18px; word-break: break-all; transition: color .35s; }
+
+    /* ── TIME & INFO ── */
+    .time-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px; border-radius: 10px;
+      background: var(--time-bar-bg); border: 1px solid var(--time-bar-border);
+      font-size: 13px; transition: background .35s, border-color .35s;
+    }
+    .time-clock { font-family: 'Syne', sans-serif; font-size: 15px; color: var(--orange); font-weight: 600; letter-spacing: .04em; transition: color .35s; }
+
+    /* ── PROGRESS ── */
+    .progress-wrap { height: 4px; background: var(--riwayat-border); border-radius: 99px; overflow: hidden; margin: 18px 0 0; transition: background .35s; }
+    .progress-bar { height: 100%; width: 0; background: linear-gradient(90deg,var(--orange),#ffaa00); border-radius: 99px; transition: width .5s cubic-bezier(.4,0,.2,1); }
+
+    /* ── SUBMIT BTN ── */
+    .btn-submit {
+      width: 100%; padding: 16px; border-radius: 12px;
+      background: linear-gradient(135deg,var(--orange),var(--orange-deep));
+      border: none; color: #fff;
+      font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700;
+      letter-spacing: .1em; text-transform: uppercase;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      position: relative; overflow: hidden;
+      transition: transform .2s, box-shadow .2s, opacity .2s;
+      box-shadow: 0 6px 28px rgba(255,106,0,.4);
+    }
+    .btn-submit::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg,rgba(255,255,255,.1),transparent); }
+    .btn-submit:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 36px rgba(255,106,0,.55); }
+    .btn-submit:active:not(:disabled) { transform: translateY(0); }
+    .btn-submit:disabled { opacity: .5; cursor: not-allowed; box-shadow: none; }
+    .btn-spinner { width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .65s linear infinite; display: none; }
+    .cooldown-bar { height: 3px; background: rgba(255,255,255,.12); border-radius: 99px; margin-top: 10px; overflow: hidden; display: none; }
+    .cooldown-fill { height: 100%; width: 100%; background: var(--orange); border-radius: 99px; }
+
+    /* ── PREVIEW MODAL ── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 5000;
+      background: rgba(0,0,0,.75); backdrop-filter: blur(12px);
+      display: none; align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-overlay.show { display: flex; animation: fadeIn .25s ease; }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+    .modal-box {
+      background: var(--bg-card); border: 1px solid var(--border-mid);
+      border-radius: 20px; overflow: hidden;
+      width: 100%; max-width: 440px;
+      box-shadow: 0 24px 80px rgba(0,0,0,.7);
+      animation: modalUp .3s cubic-bezier(.22,1,.36,1);
+      max-height: 90vh; overflow-y: auto;
+      transition: background .35s, border-color .35s;
+    }
+    @keyframes modalUp { from{opacity:0;transform:translateY(30px)scale(.96)} to{opacity:1;transform:translateY(0)scale(1)} }
+
+    .modal-top-bar { height: 3px; background: linear-gradient(90deg,transparent,var(--orange),#ffaa00,var(--orange),transparent); background-size: 200% 100%; animation: shimmer 3s linear infinite; }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+    .modal-header { padding: 20px 22px 0; display: flex; align-items: center; justify-content: space-between; }
+    .modal-title { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; color: var(--text-body); }
+    .modal-close { width: 32px; height: 32px; border-radius: 8px; background: var(--net-pill-bg); border: 1px solid var(--net-pill-border); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-dim); font-size: 16px; transition: all .2s; }
+    .modal-close:hover { background: rgba(255,82,82,.15); color: #ff7070; }
+
+    .modal-foto { padding: 16px 22px 0; }
+    .modal-foto img { width: 60%; border-radius: 12px; display: block; aspect-ratio: 3/4; object-fit: cover; margin: 0 auto; }
+
+    .modal-rows { padding: 18px 22px; display: flex; flex-direction: column; gap: 10px; }
+    .modal-row { display: flex; gap: 12px; align-items: flex-start; font-size: 13.5px; }
+    .modal-row-label { width: 90px; flex-shrink: 0; color: var(--text-muted); font-size: 12px; letter-spacing: .04em; padding-top: 1px; }
+    .modal-row-val { color: var(--text-body); font-weight: 500; word-break: break-word; }
+
+    .modal-actions { padding: 0 22px 22px; display: flex; gap: 12px; }
+    .btn-confirm {
+      flex: 1; padding: 13px; border-radius: 10px; border: none; cursor: pointer;
+      background: linear-gradient(135deg,var(--orange),var(--orange-deep));
+      color: #fff; font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: .06em;
+      transition: transform .15s, box-shadow .15s; box-shadow: 0 4px 20px rgba(255,106,0,.35);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-confirm:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(255,106,0,.5); }
+    .btn-cancel {
+      flex: 1; padding: 13px; border-radius: 10px; cursor: pointer;
+      background: var(--net-pill-bg); border: 1px solid var(--net-pill-border);
+      color: var(--text-dim); font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: .06em;
+      transition: all .2s;
+    }
+    .btn-cancel:hover { opacity: .8; }
+
+    /* ── RIWAYAT ── */
+    .riwayat-list { display: flex; flex-direction: column; gap: 10px; }
+    .riwayat-item {
+      padding: 12px 16px; border-radius: 12px;
+      background: var(--riwayat-bg); border: 1px solid var(--riwayat-border);
+      display: flex; align-items: flex-start; gap: 12px;
+      animation: fadeIn .3s ease;
+      transition: background .35s, border-color .35s;
+    }
+    .riwayat-icon { width: 36px; height: 36px; border-radius: 9px; background: rgba(255,106,0,.1); border: 1px solid var(--border-dim); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+    .riwayat-info { flex: 1; min-width: 0; }
+    .riwayat-nama { font-size: 13px; font-weight: 600; color: var(--text-body); }
+    .riwayat-sub  { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .riwayat-time { font-size: 11px; color: var(--text-muted); white-space: nowrap; padding-top: 2px; }
+    .riwayat-empty { text-align: center; color: var(--text-muted); font-size: 13px; padding: 14px 0; }
+
+    /* ── LOGOUT MODAL ── */
+    .logout-overlay {
+      position: fixed; inset: 0; z-index: 6000;
+      background: rgba(0,0,0,.75); backdrop-filter: blur(14px);
+      display: none; align-items: center; justify-content: center; padding: 20px;
+    }
+    .logout-overlay.show { display: flex; animation: fadeIn .25s ease; }
+
+    .logout-box {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,82,82,.25);
+      border-radius: 20px; overflow: hidden;
+      width: 100%; max-width: 340px;
+      box-shadow: 0 24px 80px rgba(0,0,0,.7);
+      animation: modalUp .3s cubic-bezier(.22,1,.36,1);
+      transition: background .35s;
+    }
+    .logout-top-bar { height: 3px; background: linear-gradient(90deg, transparent, #ff5252, #ff8080, #ff5252, transparent); background-size: 200% 100%; animation: shimmer 3s linear infinite; }
+    .logout-icon-wrap { display: flex; justify-content: center; padding: 28px 0 12px; }
+    .logout-icon {
+      width: 62px; height: 62px; border-radius: 18px;
+      background: rgba(255,82,82,.1); border: 1.5px solid rgba(255,82,82,.25);
+      display: flex; align-items: center; justify-content: center; font-size: 28px;
+      animation: pulse-ring-red 1.8s ease-in-out infinite;
+    }
+    @keyframes pulse-ring-red { 0%,100%{box-shadow:0 0 0 0 rgba(255,82,82,.3)} 50%{box-shadow:0 0 0 12px rgba(255,82,82,0)} }
+    .logout-content { padding: 0 24px 24px; text-align: center; }
+    .logout-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 8px; color: var(--text-body); }
+    .logout-desc { font-size: 13.5px; color: var(--text-dim); line-height: 1.5; }
+    .logout-user {
+      margin: 14px 0 20px; padding: 10px 14px; border-radius: 10px;
+      background: var(--net-pill-bg); border: 1px solid var(--net-pill-border);
+      font-size: 13px; color: var(--text-dim);
+      display: flex; align-items: center; gap: 8px; justify-content: center;
+    }
+    .logout-user strong { color: var(--text-body); }
+    .logout-actions { display: flex; gap: 10px; }
+    .btn-logout-cancel {
+      flex: 1; padding: 12px; border-radius: 10px; cursor: pointer;
+      background: var(--net-pill-bg); border: 1px solid var(--net-pill-border);
+      color: var(--text-dim); font-family: 'Syne', sans-serif;
+      font-size: 13px; font-weight: 700; letter-spacing: .06em; transition: all .2s;
+    }
+    .btn-logout-cancel:hover { opacity: .8; color: var(--text-body); }
+    .btn-logout-confirm {
+      flex: 1; padding: 12px; border-radius: 10px; cursor: pointer; border: none;
+      background: linear-gradient(135deg, #ff5252, #c84040);
+      color: #fff; font-family: 'Syne', sans-serif;
+      font-size: 13px; font-weight: 700; letter-spacing: .06em;
+      box-shadow: 0 4px 20px rgba(255,82,82,.35);
+      transition: transform .15s, box-shadow .15s;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .btn-logout-confirm:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(255,82,82,.5); }
+    .btn-logout-confirm:active { transform: translateY(0); }
+  </style>
+</head>
+<body>
+
+<!-- Loading Screen -->
+<div id="loadingScreen">
+  <div class="loading-logo">🏢</div>
+  <div class="loading-bar-wrap"><div class="loading-bar" id="loadingBar"></div></div>
+  <div class="loading-text" id="loadingText">Memuat sistem…</div>
+</div>
+
+<!-- BG -->
+<div class="bg">
+  <div class="bg-grid"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+</div>
+
+<!-- Toast Container -->
+<div id="toastWrap"></div>
+
+<!-- Theme Toggle -->
+<div class="theme-toggle-wrap">
+  <div class="theme-toggle">
+    <button class="theme-btn active" id="btnDark" onclick="setTheme('dark')" aria-label="Mode Malam">🌙</button>
+    <button class="theme-btn"        id="btnLight" onclick="setTheme('light')" aria-label="Mode Siang">☀️</button>
+  </div>
+</div>
+
+<!-- Topbar -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-logo">🏢</div>
+    <div>
+      <div class="topbar-title">Absensi Online</div>
+      <div class="topbar-sub" id="userLabel">Loading…</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="net-pill" id="netPill"><div class="dot"></div><span id="netTxt">—</span></div>
+    <div class="device-badge" id="deviceBadge">—</div>
+    <button class="btn-logout" onclick="doLogout()">Logout</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="container">
+
+  <!-- STEP INDICATOR -->
+  <div class="steps" id="stepWrap">
+    <div class="step-item" id="s1"><div class="step-icon">📸</div><span>Foto</span></div>
+    <div class="step-item" id="s2"><div class="step-icon">📍</div><span>Lokasi</span></div>
+    <div class="step-item" id="s3"><div class="step-icon">📝</div><span>Form</span></div>
+    <div class="step-item" id="s4"><div class="step-icon">🚀</div><span>Kirim</span></div>
+  </div>
+
+  <!-- KAMERA -->
+  <div class="section-card">
+    <div class="section-head"><span>📸</span> Ambil Foto</div>
+    <div class="section-body">
+      <div class="cam-wrap" id="camWrap">
+        <video id="video" autoplay playsinline muted></video>
+        <div class="cam-overlay"></div>
+        <div class="cam-status"><div class="rec-dot"></div><span id="camStatus">Memuat…</span></div>
+        <img id="fotoPreview" alt="Foto Preview">
+      </div>
+      <canvas id="canvas" style="display:none"></canvas>
+      <div class="shutter-wrap" id="shutterWrap">
+        <button class="btn-shutter" onclick="ambilFoto()" title="Ambil Foto">⬤</button>
+        <button class="btn-retry-cam" onclick="startCamera()" id="btnRetryCam" style="display:none">🔄 Coba Lagi</button>
+      </div>
+      <div style="margin-top:10px; display:none" id="ulangWrap">
+        <button class="btn-ulang" onclick="ulangFoto()">🔄 Ulang Foto</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOKASI -->
+  <div class="section-card">
+    <div class="section-head"><span>📍</span> Lokasi GPS</div>
+    <div class="section-body">
+      <button class="btn-lokasi" id="btnLokasi" onclick="ambilLokasi()">
+        <span id="lokasiIcon">📍</span>
+        <span id="lokasiLabel">Ambil Lokasi</span>
+      </button>
+      <div class="lokasi-text" id="lokasiText"></div>
+    </div>
+  </div>
+
+  <!-- FORM DATA -->
+  <div class="section-card">
+    <div class="section-head"><span>📝</span> Data Absensi</div>
+    <div class="section-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Nama</label>
+          <select disabled id="fieldNama"><option id="namaOpt"></option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Jabatan</label>
+          <select disabled id="fieldJabatan"><option id="jabatanOpt"></option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tempat</label>
+          <select id="fieldTempat" onchange="checkReady()">
+            <option value="" disabled selected>Memuat…</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Keperluan</label>
+          <select id="fieldKeperluan" onchange="checkReady()">
+            <option value="" disabled selected>Memuat…</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:14px">
+        <label class="form-label">Keterangan (opsional)</label>
+        <input type="text" id="fieldCatatan" placeholder="Tambah keterangan…" oninput="checkReady()" maxlength="200">
+      </div>
+      <div class="time-bar" style="margin-top:14px">
+        <span style="font-size:12px;color:var(--text-muted)">Waktu Sekarang</span>
+        <span class="time-clock" id="jamDisplay">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBMIT -->
+  <div class="section-card">
+    <div class="section-body">
+      <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+      <div style="margin-top:16px">
+        <button class="btn-submit" id="btnSubmit" onclick="showModal()" disabled>
+          <div class="btn-spinner" id="btnSpinner"></div>
+          <span id="btnTxt">Lengkapi data…</span>
+        </button>
+        <div class="cooldown-bar" id="cooldownBar"><div class="cooldown-fill" id="cooldownFill"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIWAYAT -->
+  <div class="section-card">
+    <div class="section-head"><span>🗂</span> Riwayat Absensi</div>
+    <div class="section-body">
+      <div class="riwayat-list" id="riwayatList"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL PREVIEW -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <div class="modal-top-bar"></div>
+    <div class="modal-header">
+      <div class="modal-title">Preview Absensi</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-foto"><img id="prevImg" alt="Preview"></div>
+    <div class="modal-rows">
+      <div class="modal-row"><span class="modal-row-label">Nama</span><span class="modal-row-val" id="prevNama">—</span></div>
+      <div class="modal-row"><span class="modal-row-label">Jabatan</span><span class="modal-row-val" id="prevJabatan">—</span></div>
+      <div class="modal-row"><span class="modal-row-label">Tempat</span><span class="modal-row-val" id="prevTempat">—</span></div>
+      <div class="modal-row"><span class="modal-row-label">Keperluan</span><span class="modal-row-val" id="prevKeperluan">—</span></div>
+      <div class="modal-row"><span class="modal-row-label">Catatan</span><span class="modal-row-val" id="prevCatatan">—</span></div>
+      <div class="modal-row"><span class="modal-row-label">Lokasi</span><span class="modal-row-val" id="prevLokasi">—</span></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">❌ Batal</button>
+      <button class="btn-confirm" onclick="confirmKirim()">✅ Kirim Sekarang</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOGOUT MODAL -->
+<div class="logout-overlay" id="logoutOverlay">
+  <div class="logout-box">
+    <div class="logout-top-bar"></div>
+    <div class="logout-icon-wrap"><div class="logout-icon">🚪</div></div>
+    <div class="logout-content">
+      <div class="logout-title">Konfirmasi Logout</div>
+      <div class="logout-desc">Sesi kamu akan diakhiri dan kamu akan diarahkan ke halaman login.</div>
+      <div class="logout-user">
+        <span>👤</span>
+        <span>Logout sebagai <strong id="logoutUserName">—</strong></span>
+      </div>
+      <div class="logout-actions">
+        <button class="btn-logout-cancel" onclick="closeLogoutModal()">✕ Batal</button>
+        <button class="btn-logout-confirm" onclick="confirmLogout()">🚪 Logout</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+/* ════════════════════════════════════════
+   THEME — sama persis dengan login.html
+════════════════════════════════════════ */
+function setTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  localStorage.setItem('absensi_theme', t);
+  document.getElementById('btnDark').classList.toggle('active', t === 'dark');
+  document.getElementById('btnLight').classList.toggle('active', t === 'light');
+}
+
+/* Terapkan tema tersimpan saat halaman dimuat */
+(function() {
+  const saved = localStorage.getItem('absensi_theme');
+  const preferred = saved || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  setTheme(preferred);
+})();
+
+/* ════════════════════════════════════════
+   STATE
+════════════════════════════════════════ */
+const STATE = {
+  foto: '', lat: '', lng: '',
+  submitting: false, cooldown: false,
+};
+const RIWAYAT_KEY  = 'absensi_riwayat';
+const RIWAYAT_MAX  = 5;
+const COOLDOWN_SEC = 10;
+
+/* ════════════════════════════════════════
+   INIT
+════════════════════════════════════════ */
+let loginUser, loginJabatan;
+
+(async function init() {
+  try {
+    const res  = await fetch('/api/integration/session', { credentials: 'same-origin' });
+    const data = await res.json();
+    if (!res.ok || !data.ok) throw new Error(data.message || 'Belum login');
+    loginUser    = data.user.username;
+    loginJabatan = data.user.jabatan || '';
+    localStorage.setItem('loginUser', loginUser);
+    localStorage.setItem('loginJabatan', loginJabatan);
+  } catch {
+    localStorage.removeItem('loginUser');
+    localStorage.removeItem('loginJabatan');
+    window.location.replace('/integrasi/login.html');
+    return;
+  }
+
+  const bar  = document.getElementById('loadingBar');
+  const ltxt = document.getElementById('loadingText');
+  const steps = [[15,'Memverifikasi sesi…'],[40,'Menyiapkan kamera…'],[70,'Memuat komponen…'],[100,'Siap!']];
+  for (const [pct, msg] of steps) {
+    bar.style.width  = pct + '%';
+    ltxt.textContent = msg;
+    await sleep(280);
+  }
+  await sleep(300);
+  document.getElementById('loadingScreen').classList.add('hidden');
+
+  document.getElementById('namaOpt').textContent    = loginUser;
+  document.getElementById('jabatanOpt').textContent = loginJabatan || '—';
+  document.getElementById('userLabel').textContent  = `👤 ${loginUser} · ${loginJabatan || '—'}`;
+  document.getElementById('deviceBadge').textContent = /Mobi|Android/i.test(navigator.userAgent) ? '📱 Mobile' : '🖥 Desktop';
+
+  await loadFormOptions();
+  await startCamera();
+  updateClock();
+  setInterval(updateClock, 1000);
+  updateNet();
+  window.addEventListener('online',  updateNet);
+  window.addEventListener('offline', updateNet);
+  renderRiwayat();
+  updateProgress();
+})();
+
+/* ════════════════════════════════════════
+   HELPERS
+════════════════════════════════════════ */
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function sanitize(str) {
+  const map = {'<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'};
+  return String(str).replace(/[<>"'`]/g, c => map[c] || c);
+}
+
+function updateClock() {
+  document.getElementById('jamDisplay').textContent = new Date().toLocaleString('id-ID');
+}
+
+/* ════════════════════════════════════════
+   LOAD FORM OPTIONS
+════════════════════════════════════════ */
+async function loadFormOptions() {
+  try {
+    const res  = await fetch('/api/integration/options', { credentials: 'same-origin' });
+    const data = await res.json();
+    if (!data.ok) throw new Error();
+    const tempatSel    = document.getElementById('fieldTempat');
+    const keperluanSel = document.getElementById('fieldKeperluan');
+    tempatSel.innerHTML = '';
+    (data.tempat || []).forEach(opt => {
+      const o = document.createElement('option');
+      o.value = opt.name; o.textContent = opt.name;
+      tempatSel.appendChild(o);
+    });
+    if (data.tempat && data.tempat.length) tempatSel.value = data.tempat[0].name;
+    keperluanSel.innerHTML = '<option value="" disabled selected>Pilih keperluan…</option>';
+    (data.keperluan || []).forEach(opt => {
+      const o = document.createElement('option');
+      o.value = opt.name; o.textContent = (opt.icon ? opt.icon + ' ' : '') + opt.name;
+      keperluanSel.appendChild(o);
+      if (opt.icon) KEPERLUAN_ICON[opt.name] = opt.icon;
+    });
+  } catch {
+    document.getElementById('fieldTempat').innerHTML = `
+      <option>Wisma Tunggang Parangan</option>
+      <option>Pos Pandu Tenggarong</option>
+      <option>Pos Pandu Kota Bangun</option>
+      <option>Pos Pandu Muara Wis</option>
+      <option>Di luar Kantor</option>`;
+    document.getElementById('fieldKeperluan').innerHTML = `
+      <option value="" disabled selected>Pilih keperluan…</option>
+      <option>Masuk Kantor</option>
+      <option>Pulang Kantor</option>
+      <option>Perjalanan Dinas</option>
+      <option>Izin</option>
+      <option>Istirahat</option>
+      <option>Sakit</option>`;
+  }
+}
+
+/* ════════════════════════════════════════
+   ALERT BANNER
+════════════════════════════════════════ */
+function showAlertBanner(alertText) {
+  const existing = document.getElementById('alertBanner');
+  if (existing) existing.remove();
+  const isLate = alertText === 'Datang Terlambat';
+  const col = isLate ? '#ffd166' : '#ff8080';
+  const bg  = isLate ? 'rgba(255,200,0,.14)' : 'rgba(255,82,82,.14)';
+  const bdr = isLate ? 'rgba(255,200,0,.35)'  : 'rgba(255,82,82,.35)';
+  const ico = isLate ? '⏰' : '🚨';
+  const sub = isLate ? 'Absensi direkam sebagai terlambat.' : 'Absensi direkam pulang lebih awal dari jadwal.';
+  const el  = document.createElement('div');
+  el.id = 'alertBanner';
+  Object.assign(el.style, {
+    position:'fixed', bottom:'80px', left:'50%', transform:'translateX(-50%)',
+    zIndex:'8000', maxWidth:'340px', width:'calc(100% - 32px)',
+    padding:'14px 18px', borderRadius:'14px',
+    background:bg, border:'1px solid '+bdr, color:col,
+    backdropFilter:'blur(16px)', WebkitBackdropFilter:'blur(16px)',
+    display:'flex', alignItems:'flex-start', gap:'12px',
+    boxShadow:'0 8px 32px rgba(0,0,0,.4)', transition:'opacity .3s'
+  });
+  el.innerHTML = '<span style="font-size:26px;line-height:1">' + ico + '</span>'
+    + '<div><div style="font-family:Syne,sans-serif;font-weight:700;font-size:14px;letter-spacing:.04em">' + alertText + '</div>'
+    + '<div style="font-size:12px;margin-top:3px;opacity:.75">' + sub + '</div></div>'
+    + '<button onclick="document.getElementById(\'alertBanner\').remove()" style="margin-left:auto;font-size:14px;opacity:.6;cursor:pointer;background:none;border:none;color:inherit">x</button>';
+  document.body.appendChild(el);
+  setTimeout(() => { if (el.parentElement) el.remove(); }, 9000);
+}
+
+/* ════════════════════════════════════════
+   TOAST
+════════════════════════════════════════ */
+const TOAST_ICONS = { success:'✅', error:'❌', info:'💡', warning:'⚠️' };
+function toast(msg, type = 'info', dur = 2800) {
+  const wrap = document.getElementById('toastWrap');
+  const el   = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = `${TOAST_ICONS[type]} ${msg}`;
+  wrap.appendChild(el);
+  setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 350); }, dur);
+}
+
+/* ════════════════════════════════════════
+   NETWORK
+════════════════════════════════════════ */
+function updateNet() {
+  const pill  = document.getElementById('netPill');
+  const label = document.getElementById('netTxt');
+  if (navigator.onLine) {
+    pill.className = 'net-pill online'; label.textContent = 'Online';
+  } else {
+    pill.className = 'net-pill offline'; label.textContent = 'Offline';
+    toast('Koneksi internet terputus', 'warning', 4000);
+  }
+}
+
+/* ════════════════════════════════════════
+   CAMERA
+════════════════════════════════════════ */
+let videoStream = null;
+
+async function startCamera() {
+  const video    = document.getElementById('video');
+  const camStatus = document.getElementById('camStatus');
+  const retryBtn  = document.getElementById('btnRetryCam');
+  camStatus.textContent = 'Menyalakan…';
+  retryBtn.style.display = 'none';
+  if (videoStream) videoStream.getTracks().forEach(t => t.stop());
+  try {
+    videoStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }
+    });
+    video.srcObject = videoStream;
+    camStatus.textContent = '● Kamera Aktif';
+    toast('Kamera aktif', 'success', 1800);
+  } catch {
+    camStatus.textContent = 'Gagal!';
+    retryBtn.style.display = 'flex';
+    toast('Kamera tidak dapat diakses', 'error');
+  }
+}
+
+function ambilFoto() {
+  const video  = document.getElementById('video');
+  const canvas = document.getElementById('canvas');
+  const prev   = document.getElementById('fotoPreview');
+  if (!video.videoWidth) { toast('Kamera belum siap', 'warning'); return; }
+  const cropW = video.videoHeight * 3 / 4;
+  const cropH = video.videoHeight;
+  const offsetX = (video.videoWidth - cropW) / 2;
+  canvas.width = cropW; canvas.height = cropH;
+  const ctx = canvas.getContext('2d');
+  ctx.translate(cropW, 0); ctx.scale(-1, 1);
+  ctx.drawImage(video, offsetX, 0, cropW, cropH, 0, 0, cropW, cropH);
+  ctx.setTransform(1,0,0,1,0,0);
+  STATE.foto = canvas.toDataURL('image/jpeg', 0.72).split(',')[1];
+  prev.src = canvas.toDataURL('image/jpeg', 0.72);
+  prev.style.display = 'block';
+  video.style.display = 'none';
+  document.getElementById('shutterWrap').style.display = 'none';
+  document.getElementById('ulangWrap').style.display   = 'block';
+  if (videoStream) videoStream.getTracks().forEach(t => t.stop());
+  toast('Foto berhasil diambil!', 'success');
+  updateProgress(); checkReady();
+}
+
+function ulangFoto() {
+  STATE.foto = '';
+  document.getElementById('fotoPreview').style.display = 'none';
+  document.getElementById('video').style.display       = 'block';
+  document.getElementById('shutterWrap').style.display = 'flex';
+  document.getElementById('ulangWrap').style.display   = 'none';
+  startCamera(); updateProgress(); checkReady();
+}
+
+/* ════════════════════════════════════════
+   LOKASI
+════════════════════════════════════════ */
+function ambilLokasi() {
+  const btn   = document.getElementById('btnLokasi');
+  const label = document.getElementById('lokasiLabel');
+  const icon  = document.getElementById('lokasiIcon');
+  const txt   = document.getElementById('lokasiText');
+  if (!navigator.geolocation) {
+    txt.textContent = '❌ Browser tidak mendukung GPS';
+    toast('Browser tidak mendukung Geolocation', 'error'); return;
+  }
+  btn.classList.remove('success'); btn.classList.add('loading');
+  icon.innerHTML = '<div class="loc-spinner"></div>';
+  label.textContent = 'Mengambil…'; txt.textContent = '⏳ Mencari sinyal GPS…';
+  btn.disabled = true;
+
+  function tryHighAccuracy() {
+    navigator.geolocation.getCurrentPosition(onSuccess,
+      e => { if (e.code !== 1) { txt.textContent='⏳ GPS lambat, mencoba jaringan…'; tryNetworkAccuracy(); } else onError(e); },
+      { enableHighAccuracy:true, timeout:10000, maximumAge:0 });
+  }
+  function tryNetworkAccuracy() {
+    navigator.geolocation.getCurrentPosition(onSuccess,
+      e => { if (e.code !== 1) { txt.textContent='⏳ Mencoba lokasi tersimpan…'; tryCachedAccuracy(); } else onError(e); },
+      { enableHighAccuracy:false, timeout:8000, maximumAge:0 });
+  }
+  function tryCachedAccuracy() {
+    navigator.geolocation.getCurrentPosition(onSuccess, onError,
+      { enableHighAccuracy:false, timeout:5000, maximumAge:300000 });
+  }
+  function onSuccess(pos) {
+    STATE.lat = pos.coords.latitude; STATE.lng = pos.coords.longitude;
+    const acc = pos.coords.accuracy ? `±${Math.round(pos.coords.accuracy)}m` : '';
+    btn.classList.remove('loading'); btn.classList.add('success');
+    btn.disabled = false; icon.textContent = '✔'; label.textContent = 'Lokasi Didapat';
+    txt.innerHTML = `📍 <b>${STATE.lat.toFixed(6)}, ${STATE.lng.toFixed(6)}</b> <span style="color:var(--text-muted);font-size:11px">${acc}</span>`;
+    toast('Lokasi GPS berhasil didapat!', 'success'); updateProgress(); checkReady();
+  }
+  function onError(err) {
+    btn.classList.remove('loading'); btn.disabled = false;
+    icon.textContent = '📍'; label.textContent = 'Ambil Lokasi';
+    const MSG = {1:'❌ Izin lokasi ditolak — aktifkan di pengaturan browser',2:'❌ Sinyal GPS tidak tersedia',3:'❌ Timeout — coba lagi'};
+    txt.textContent = MSG[err.code] || `❌ Error lokasi (${err.message})`;
+    if (err.code === 1) toast('Izin lokasi ditolak.', 'error', 5000);
+    else toast('Gagal mendapat lokasi, coba lagi', 'error');
+  }
+  tryHighAccuracy();
+}
+
+/* ════════════════════════════════════════
+   PROGRESS & STEPS
+════════════════════════════════════════ */
+function updateProgress() {
+  let pct = 0;
+  if (STATE.foto) pct += 33;
+  if (STATE.lat)  pct += 33;
+  const keperluan = document.getElementById('fieldKeperluan').value;
+  if (STATE.foto && STATE.lat && keperluan) pct = 100;
+  document.getElementById('progressBar').style.width = pct + '%';
+
+  const s1 = document.getElementById('s1');
+  const s2 = document.getElementById('s2');
+  const s3 = document.getElementById('s3');
+  const s4 = document.getElementById('s4');
+  s1.className = 'step-item' + (STATE.foto ? ' done' : '');
+  s2.className = 'step-item' + (STATE.lat  ? ' done' : '');
+  s3.className = 'step-item' + (keperluan  ? ' done' : '');
+  s4.className = 'step-item' + (STATE.foto && STATE.lat && keperluan ? ' done' : (STATE.foto || STATE.lat ? ' active' : ''));
+  s1.querySelector('.step-icon').textContent = STATE.foto  ? '✅' : '📸';
+  s2.querySelector('.step-icon').textContent = STATE.lat   ? '✅' : '📍';
+  s3.querySelector('.step-icon').textContent = keperluan   ? '✅' : '📝';
+}
+
+/* ════════════════════════════════════════
+   VALIDASI & SUBMIT BTN
+════════════════════════════════════════ */
+function checkReady() {
+  updateProgress();
+  const keperluan = document.getElementById('fieldKeperluan').value;
+  const ok = STATE.foto && STATE.lat && keperluan && loginUser && loginJabatan;
+  const btn = document.getElementById('btnSubmit');
+  btn.disabled = !ok || STATE.submitting || STATE.cooldown;
+  document.getElementById('btnTxt').textContent = ok ? '🚀 SUBMIT ABSENSI' : 'Lengkapi data…';
+}
+
+/* ════════════════════════════════════════
+   MODAL PREVIEW
+════════════════════════════════════════ */
+function showModal() {
+  if (!STATE.foto) { toast('Ambil foto terlebih dahulu', 'warning'); return; }
+  if (!STATE.lat)  { toast('Ambil lokasi GPS terlebih dahulu', 'warning'); return; }
+  document.getElementById('prevImg').src = 'data:image/jpeg;base64,' + STATE.foto;
+  document.getElementById('prevNama').textContent      = sanitize(loginUser);
+  document.getElementById('prevJabatan').textContent   = sanitize(loginJabatan);
+  document.getElementById('prevTempat').textContent    = sanitize(document.getElementById('fieldTempat').value);
+  document.getElementById('prevKeperluan').textContent = sanitize(document.getElementById('fieldKeperluan').value);
+  document.getElementById('prevCatatan').textContent   = sanitize(document.getElementById('fieldCatatan').value || '—');
+  document.getElementById('prevLokasi').textContent    = `${STATE.lat}, ${STATE.lng}`;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+function closeModal() { document.getElementById('modalOverlay').classList.remove('show'); }
+
+/* ════════════════════════════════════════
+   KIRIM
+════════════════════════════════════════ */
+async function confirmKirim() {
+  closeModal();
+  if (STATE.submitting || STATE.cooldown) return;
+  STATE.submitting = true; checkReady();
+  const btn     = document.getElementById('btnSubmit');
+  const spinner = document.getElementById('btnSpinner');
+  const txtEl   = document.getElementById('btnTxt');
+  btn.disabled = true; spinner.style.display = 'block'; txtEl.textContent = 'Mengirim...';
+  const now = new Date();
+  const payload = {
+    nama: loginUser, jabatan: loginJabatan,
+    tempat:     document.getElementById('fieldTempat').value,
+    keterangan: document.getElementById('fieldKeperluan').value,
+    catatan:    sanitize(document.getElementById('fieldCatatan').value),
+    latitude: STATE.lat, longitude: STATE.lng,
+    tanggal: now.toLocaleDateString('id-ID'),
+    jam:     now.toLocaleTimeString('id-ID'),
+    foto:    STATE.foto,
+  };
+  try {
+    const res  = await fetch('/api/integration/attendance', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin', body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok || !data.ok) throw new Error(data.message || 'Gagal menyimpan absensi');
+    toast('Absensi berhasil masuk dashboard!', 'success', 3500);
+    if (data.alert) {
+      const alertType = data.alert === 'Datang Terlambat' ? 'warning' : 'error';
+      const alertIcon = data.alert === 'Datang Terlambat' ? '⏰' : '🚨';
+      setTimeout(() => toast(`${alertIcon} ${data.alert}`, alertType, 5000), 500);
+      showAlertBanner(data.alert);
+    }
+    saveRiwayat({ nama: loginUser, jabatan: loginJabatan,
+      keperluan: document.getElementById('fieldKeperluan').value,
+      tempat:    document.getElementById('fieldTempat').value,
+      waktu:     now.toLocaleString('id-ID') });
+    startCooldown();
+    await sleep(600);
+    resetForm();
+  } catch (err) {
+    toast(err.message || 'Gagal mengirim. Coba lagi.', 'error');
+    STATE.submitting = false; btn.disabled = false;
+    spinner.style.display = 'none'; txtEl.textContent = 'SUBMIT ABSENSI';
+  }
+}
+
+function startCooldown() {
+  STATE.cooldown = true;
+  const bar  = document.getElementById('cooldownBar');
+  const fill = document.getElementById('cooldownFill');
+  const txtEl = document.getElementById('btnTxt');
+  bar.style.display = 'block';
+  let rem = COOLDOWN_SEC;
+  const iv = setInterval(() => {
+    rem--;
+    fill.style.width = (rem / COOLDOWN_SEC * 100) + '%';
+    txtEl.textContent = `⏳ Tunggu ${rem}s…`;
+    if (rem <= 0) {
+      clearInterval(iv); STATE.cooldown = false; STATE.submitting = false;
+      bar.style.display = 'none'; checkReady();
+    }
+  }, 1000);
+  fill.style.width = '100%';
+  fill.style.transition = `width ${COOLDOWN_SEC}s linear`;
+}
+
+/* ════════════════════════════════════════
+   RESET FORM
+════════════════════════════════════════ */
+function resetForm() {
+  STATE.foto = ''; STATE.lat = ''; STATE.lng = '';
+  document.getElementById('fotoPreview').style.display = 'none';
+  document.getElementById('video').style.display       = 'block';
+  document.getElementById('shutterWrap').style.display = 'flex';
+  document.getElementById('ulangWrap').style.display   = 'none';
+  startCamera();
+  const btnLok = document.getElementById('btnLokasi');
+  btnLok.classList.remove('success', 'loading');
+  document.getElementById('lokasiIcon').textContent  = '📍';
+  document.getElementById('lokasiLabel').textContent = 'Ambil Lokasi';
+  document.getElementById('lokasiText').textContent  = '';
+  document.getElementById('fieldKeperluan').value = '';
+  document.getElementById('fieldCatatan').value   = '';
+  updateProgress(); renderRiwayat();
+}
+
+/* ════════════════════════════════════════
+   RIWAYAT LOKAL
+════════════════════════════════════════ */
+function saveRiwayat(entry) {
+  let list = [];
+  try { list = JSON.parse(localStorage.getItem(RIWAYAT_KEY) || '[]'); } catch {}
+  list.unshift(entry);
+  if (list.length > RIWAYAT_MAX) list = list.slice(0, RIWAYAT_MAX);
+  localStorage.setItem(RIWAYAT_KEY, JSON.stringify(list));
+}
+
+const KEPERLUAN_ICON = {
+  'Masuk Kantor':'🏢','Pulang Kantor':'🏠',
+  'Perjalanan Dinas':'✈️','Izin':'📋','Istirahat':'☕','Sakit':'🤒',
+};
+
+function renderRiwayat() {
+  const wrap = document.getElementById('riwayatList');
+  let list = [];
+  try { list = JSON.parse(localStorage.getItem(RIWAYAT_KEY) || '[]'); } catch {}
+  if (!list.length) { wrap.innerHTML = '<div class="riwayat-empty">Belum ada riwayat absensi</div>'; return; }
+  wrap.innerHTML = list.map(r => `
+    <div class="riwayat-item">
+      <div class="riwayat-icon">${KEPERLUAN_ICON[r.keperluan] || '📌'}</div>
+      <div class="riwayat-info">
+        <div class="riwayat-nama">${sanitize(r.nama)} · ${sanitize(r.jabatan)}</div>
+        <div class="riwayat-sub">${sanitize(r.keperluan)} · ${sanitize(r.tempat)}</div>
+      </div>
+      <div class="riwayat-time">${sanitize(r.waktu)}</div>
+    </div>`).join('');
+}
+
+/* ════════════════════════════════════════
+   LOGOUT
+════════════════════════════════════════ */
+function doLogout() {
+  document.getElementById('logoutUserName').textContent = loginUser || '—';
+  document.getElementById('logoutOverlay').classList.add('show');
+}
+function closeLogoutModal() {
+  document.getElementById('logoutOverlay').classList.remove('show');
+}
+async function confirmLogout() {
+  try { await fetch('/api/integration/logout', { method:'POST', credentials:'same-origin' }); } catch {}
+  localStorage.removeItem('loginUser');
+  localStorage.removeItem('loginJabatan');
+  window.location.replace('/integrasi/login.html');
+}
+</script>
+</body>
+</html>

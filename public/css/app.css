@@ -1,0 +1,88 @@
+/* Nav item sidebar */
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: 0.75rem;
+  color: #94a3b8;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+}
+.nav-item:hover {
+  background: rgba(30, 41, 59, 0.8);
+  color: #f1f5f9;
+}
+.nav-item.active {
+  background: rgba(14, 165, 233, 0.12);
+  color: #38bdf8;
+}
+.nav-item svg {
+  flex-shrink: 0;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+.nav-item:hover svg,
+.nav-item.active svg {
+  opacity: 1;
+}
+
+/* Bottom nav (mobile) */
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  font-size: 0.625rem;
+  font-weight: 500;
+  color: #475569;
+  text-decoration: none;
+  transition: color 0.2s;
+  padding: 0.25rem 0.5rem;
+  min-width: 3rem;
+}
+.bottom-nav-item.active {
+  color: #38bdf8;
+}
+.bottom-nav-item:hover {
+  color: #94a3b8;
+}
+.bottom-nav-item svg {
+  transition: transform 0.2s;
+}
+.bottom-nav-item.active svg {
+  transform: scale(1.1);
+}
+
+/* Safe area padding for notched phones */
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Form input global */
+.form-input {
+  width: 100%;
+  background: rgb(30 41 59 / 0.6);
+  border: 1px solid #334155;
+  color: #f1f5f9;
+  border-radius: 0.75rem;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  transition: border-color 0.2s;
+}
+.form-input:focus {
+  outline: none;
+  border-color: #0ea5e9;
+}
+.form-input option {
+  background: #0f172a;
+  color: #f1f5f9;
+}
+
+/* Scrollbar dark */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #475569; }

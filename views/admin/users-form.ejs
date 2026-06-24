@@ -1,0 +1,79 @@
+<%-include('../partials/head.ejs', { title: title }) %>
+<%- include('../partials/sidebar.ejs') %>
+
+<main class="md:ml-64 pt-14 md:pt-0 pb-20 md:pb-8 min-h-screen">
+  <div class="max-w-lg mx-auto px-4 py-6 space-y-5">
+
+    <!-- Header -->
+    <div class="flex items-center gap-3">
+      <a href="/admin/users" class="w-9 h-9 bg-slate-800 border border-slate-700 rounded-xl flex items-center justify-center text-slate-400 hover:text-white transition-colors">
+        ←
+      </a>
+      <div>
+        <h1 class="text-xl font-bold text-white"><%= edit ? '✏️ Edit' : '➕ Tambah' %> Akun Integrasi</h1>
+        <p class="text-sm text-slate-500"><%= edit ? 'Perbarui akun login integrasi' : 'Tambah akun login integrasi baru' %></p>
+      </div>
+    </div>
+
+    <!-- Flash error -->
+    <% if (error && error.length) { %>
+      <div class="bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-4 py-3 rounded-xl"><%= error[0] %></div>
+    <% } %>
+
+    <!-- Form -->
+    <form action="/admin/users/<%= edit ? 'edit/' + edit.id : 'add' %>" method="POST" class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+
+      <div class="space-y-1">
+        <label class="text-xs text-slate-400 font-medium">Nama Lengkap</label>
+        <input
+          type="text"
+          name="username"
+          value="<%= edit ? edit.username : '' %>"
+          placeholder="Contoh: Budi Santoso, S.E."
+          required
+          class="w-full bg-slate-800 border border-slate-700 text-white text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-sky-500 placeholder-slate-600"
+        />
+      </div>
+
+      <div class="space-y-1">
+        <label class="text-xs text-slate-400 font-medium">Password</label>
+        <input
+          type="text"
+          name="password"
+          placeholder="<%= edit ? 'Kosongkan jika tidak ingin mengubah' : 'Contoh: 1234' %>"
+          <%= edit ? '' : 'required' %>
+          class="w-full bg-slate-800 border border-slate-700 text-white text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-sky-500 placeholder-slate-600 font-mono"
+        />
+      </div>
+
+      <div class="space-y-1">
+        <label class="text-xs text-slate-400 font-medium">Jabatan / Departemen</label>
+        <select name="role_id" required class="w-full bg-slate-800 border border-slate-700 text-white text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-sky-500">
+          <option value="">Pilih jabatan</option>
+          <% (roles || []).forEach(r => { %>
+            <option value="<%= r.id %>" <%= edit && edit.role_id === r.id ? 'selected' : '' %>><%= r.name %></option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div class="space-y-1">
+        <label class="text-xs text-slate-400 font-medium">Role Otorisasi Sistem</label>
+        <select name="role" class="w-full bg-slate-800 border border-slate-700 text-white text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-sky-500">
+          <option value="user" <%= edit && edit.role === 'user' ? 'selected' : '' %>>User (Karyawan)</option>
+          <option value="admin" <%= edit && edit.role === 'admin' ? 'selected' : '' %>>Admin Biasa</option>
+          <option value="superadmin" <%= edit && edit.role === 'superadmin' ? 'selected' : '' %>>Superadmin (Bisa lihat audit log)</option>
+        </select>
+      </div>
+
+      <button type="submit" class="w-full bg-sky-500 hover:bg-sky-600 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors mt-2">
+        <%= edit ? 'Simpan Perubahan' : 'Tambah Akun' %>
+      </button>
+    </form>
+
+  </div>
+</main>
+
+<%-include('../partials/bottomnav.ejs') %> 
+
+<%- include('../partials/footer.ejs') %>

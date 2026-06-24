@@ -1,0 +1,411 @@
+<%-include('partials/head.ejs', { title: title }) %>
+<%- include('partials/sidebar.ejs') %>
+
+<main class="md:ml-64 pt-14 md:pt-0 pb-20 md:pb-8 min-h-screen">
+  <div class="max-w-6xl mx-auto px-4 py-6 space-y-5">
+
+    <!-- Page Title -->
+    <div class="flex items-center justify-between flex-wrap gap-3">
+      <div>
+        <h1 class="text-xl font-bold text-white">📋 Histori Rekap Absensi</h1>
+        <p class="text-xs text-slate-500 mt-1">Ditemukan <%= result.total %> rekaman data absensi</p>
+      </div>
+      <a href="/history/export?<%= new URLSearchParams(filters).toString() %>"
+        class="flex items-center gap-2 px-4 py-2.5 bg-green-500/10 border border-green-500/20 text-green-400 text-sm rounded-xl hover:bg-green-500/20 transition-all font-semibold">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+        Ekspor CSV
+      </a>
+    </div>
+
+    <!-- Flash -->
+    <% if (success && success.length) { %>
+      <div class="bg-green-500/10 border border-green-500/20 text-green-400 text-sm px-4 py-3 rounded-xl"><%= success[0] %></div>
+    <% } %>
+    <% if (typeof error !== 'undefined' && error && error.length) { %>
+      <div class="bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-4 py-3 rounded-xl"><%= error[0] %></div>
+    <% } %>
+
+    <!-- Filters Form -->
+    <form method="GET" action="/history" class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        
+        <% if (isAdmin) { %>
+        <!-- Filter User -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs text-slate-400 font-medium">Karyawan</label>
+          <select name="userId" class="w-full bg-slate-800 border border-slate-700 text-white text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
+            <option value="">Semua Karyawan</option>
+            <% userList.forEach(u => { %>
+              <option value="<%= u.id %>" <%= filters.userId == u.id ? 'selected' : '' %>><%= u.name %></option>
+            <% }); %>
+          </select>
+        </div>
+
+        <!-- Filter Jabatan -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs text-slate-400 font-medium">Jabatan</label>
+          <select name="jabatan" class="w-full bg-slate-800 border border-slate-700 text-white text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
+            <option value="">Semua Jabatan</option>
+            <% rolesList.forEach(r => { %>
+              <option value="<%= r.id %>" <%= filters.jabatan == r.id ? 'selected' : '' %>><%= r.name %></option>
+            <% }) %>
+          </select>
+        </div>
+        <% } %>
+
+        <!-- Filter Keperluan -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs text-slate-400 font-medium">Keperluan / Keterangan</label>
+          <select name="keperluan" class="w-full bg-slate-800 border border-slate-700 text-white text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
+            <option value="">Semua Keperluan</option>
+            <option value="Masuk Kantor" <%= filters.keperluan === 'Masuk Kantor' ? 'selected' : '' %>>🏢 Masuk Kantor</option>
+            <option value="Pulang Kantor" <%= filters.keperluan === 'Pulang Kantor' ? 'selected' : '' %>>🏠 Pulang Kantor</option>
+            <option value="Perjalanan Dinas" <%= filters.keperluan === 'Perjalanan Dinas' ? 'selected' : '' %>>✈️ Perjalanan Dinas</option>
+            <option value="Izin" <%= filters.keperluan === 'Izin' ? 'selected' : '' %>>📋 Izin</option>
+            <option value="Istirahat" <%= filters.keperluan === 'Istirahat' ? 'selected' : '' %>>☕ Istirahat</option>
+            <option value="Sakit" <%= filters.keperluan === 'Sakit' ? 'selected' : '' %>>🤒 Sakit</option>
+          </select>
+        </div>
+
+        <!-- Filter Lokasi (Tempat) -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs text-slate-400 font-medium">Lokasi Absen</label>
+          <select name="lokasi" class="w-full bg-slate-800 border border-slate-700 text-white text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
+            <option value="">Semua Lokasi</option>
+            <option value="Wisma Tunggang Parangan" <%= filters.lokasi === 'Wisma Tunggang Parangan' ? 'selected' : '' %>>Wisma Tunggang Parangan</option>
+            <option value="Pos Pandu Tenggarong" <%= filters.lokasi === 'Pos Pandu Tenggarong' ? 'selected' : '' %>>Pos Pandu Tenggarong</option>
+            <option value="Pos Pandu Kota Bangun" <%= filters.lokasi === 'Pos Pandu Kota Bangun' ? 'selected' : '' %>>Pos Pandu Kota Bangun</option>
+            <option value="Pos Pandu Muara Wis" <%= filters.lokasi === 'Pos Pandu Muara Wis' ? 'selected' : '' %>>Pos Pandu Muara Wis</option>
+            <option value="Di luar Kantor" <%= filters.lokasi === 'Di luar Kantor' ? 'selected' : '' %>>Di luar Kantor</option>
+          </select>
+        </div>
+
+        <!-- Filter Mulai Tanggal -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs text-slate-400 font-medium">Mulai Tanggal</label>
+          <input type="date" name="dateFrom" value="<%= filters.dateFrom %>"
+            class="w-full bg-slate-800 border border-slate-700 text-white text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
+        </div>
+
+        <!-- Filter Sampai Tanggal -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs text-slate-400 font-medium">Sampai Tanggal</label>
+          <input type="date" name="dateTo" value="<%= filters.dateTo %>"
+            class="w-full bg-slate-800 border border-slate-700 text-white text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
+        </div>
+
+        <!-- Filter Status -->
+        <% if (isAdmin && attendanceOptions && attendanceOptions.length > 0) { %>
+        <div class="flex flex-col gap-1.5 <%= isAdmin ? 'sm:col-span-2' : '' %>">
+          <label class="text-xs text-slate-400 font-medium">Status Kehadiran</label>
+          <select name="status" class="w-full bg-slate-800 border border-slate-700 text-white text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
+            <option value="">Semua Status</option>
+            <% attendanceOptions.forEach(opt => { %>
+              <option value="<%= opt.name %>" <%= filters.search === opt.name ? 'selected' : '' %>>
+                <%= opt.name %>
+              </option>
+            <% }) %>
+          </select>
+        </div>
+        <% } %>
+      </div>
+
+      <div class="flex justify-end gap-2 border-t border-slate-800 pt-3">
+        <a href="/history" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition-colors flex items-center">
+          Reset Filter
+        </a>
+        <button type="submit" class="px-6 py-2 bg-sky-500 hover:bg-sky-600 text-white text-xs font-semibold rounded-xl transition-colors">
+          Terapkan Filter
+        </button>
+      </div>
+    </form>
+
+    <!-- Table -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left">
+          <thead>
+            <tr class="border-b border-slate-800 text-slate-500 text-xs">
+              <th class="px-4 py-3 font-semibold">Tanggal</th>
+              <% if (isAdmin) { %>
+              <th class="px-4 py-3 font-semibold">Karyawan</th>
+              <% } %>
+              <th class="px-4 py-3 font-semibold">Status</th>
+              <th class="px-4 py-3 font-semibold">Tempat</th>
+              <th class="px-4 py-3 font-semibold">Keperluan</th>
+              <th class="px-4 py-3 font-semibold">Media</th>
+              <th class="px-4 py-3 font-semibold">Lokasi</th>
+              <th class="px-4 py-3 font-semibold">Masuk</th>
+              <th class="px-4 py-3 font-semibold">Pulang</th>
+              <th class="px-4 py-3 font-semibold">Durasi</th>
+              <% if (isAdmin) { %>
+              <th class="px-4 py-3 font-semibold text-center">Tindakan</th>
+              <% } %>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800/40 text-slate-300">
+            <% if (result.rows.length === 0) { %>
+              <tr>
+                <td colspan="<%= isAdmin ? '11' : '10' %>" class="text-center text-slate-600 py-12">
+                  <div class="text-4xl mb-2">📭</div>
+                  <div class="text-sm">Tidak ditemukan riwayat data absensi</div>
+                </td>
+              </tr>
+            <% } %>
+            <% result.rows.forEach(row => { %>
+              <tr class="hover:bg-slate-800/20 transition-colors">
+                <td class="px-4 py-3 whitespace-nowrap text-xs">
+                  <%= new Date(row.date).toLocaleDateString('id-ID', { weekday:'short', day:'2-digit', month:'short' }) %>
+                </td>
+                <% if (isAdmin) { %>
+                <td class="px-4 py-3">
+                  <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 rounded-full bg-sky-500/10 text-sky-400 flex items-center justify-center text-[10px] font-bold flex-shrink-0">
+                      <%= row.user_name.charAt(0).toUpperCase() %>
+                    </div>
+                    <div>
+                      <div class="font-medium text-white text-xs truncate max-w-[120px]"><%= row.user_name %></div>
+                      <div class="text-slate-500 text-[10px]"><%= row.jabatan || 'No Job' %></div>
+                    </div>
+                  </div>
+                </td>
+                <% } %>
+                <td class="px-4 py-3">
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border" 
+                    style="color:<%= row.status_color %>;border-color:<%= row.status_color %>33;background:<%= row.status_color %>11">
+                    <%= row.status_icon %> <%= row.status_name %>
+                  </span>
+                </td>
+                <td class="px-4 py-3 text-xs max-w-[120px] truncate"><%= row.attendance_place || '—' %></td>
+                <td class="px-4 py-3 text-xs max-w-[120px] truncate"><%= row.attendance_purpose || '—' %></td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <% if (row.checkin_photo || row.checkout_photo) { %>
+                    <div class="flex gap-1.5">
+                      <% if (row.checkin_photo) { %>
+                        <button type="button" onclick="showAttendancePhoto('<%= row.checkin_photo %>', 'Foto Check-In')" class="text-[10px] bg-sky-500/10 text-sky-400 border border-sky-500/20 px-2 py-0.5 rounded-md hover:bg-sky-500/20 transition-colors">In</button>
+                      <% } %>
+                      <% if (row.checkout_photo) { %>
+                        <button type="button" onclick="showAttendancePhoto('<%= row.checkout_photo %>', 'Foto Check-Out')" class="text-[10px] bg-rose-500/10 text-rose-400 border border-rose-500/20 px-2 py-0.5 rounded-md hover:bg-rose-500/20 transition-colors">Out</button>
+                      <% } %>
+                    </div>
+                  <% } else { %>
+                    <span class="text-slate-600 text-[10px]">—</span>
+                  <% } %>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <% if (row.checkin_location || row.checkout_location) { %>
+                    <div class="flex gap-1.5">
+                      <% if (row.checkin_location) { %>
+                        <button type="button" onclick="showAttendanceMap('<%= row.checkin_location %>', 'Lokasi Check-In')" class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-md hover:bg-emerald-500/20 transition-colors">In</button>
+                      <% } %>
+                      <% if (row.checkout_location) { %>
+                        <button type="button" onclick="showAttendanceMap('<%= row.checkout_location %>', 'Lokasi Check-Out')" class="text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-md hover:bg-amber-500/20 transition-colors">Out</button>
+                      <% } %>
+                    </div>
+                  <% } else { %>
+                    <span class="text-slate-600 text-[10px]">—</span>
+                  <% } %>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-xs">
+                  <%= row.check_in ? row.check_in.slice(0,5) : '—' %>
+                  <% if (row.is_late) { %><span class="ml-0.5 text-orange-400 text-xs" title="Terlambat">⏰</span><% } %>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-xs"><%= row.check_out ? row.check_out.slice(0,5) : '—' %></td>
+                <td class="px-4 py-3 whitespace-nowrap text-xs"><%= row.work_hours > 0 ? row.work_hours + 'j' : '—' %></td>
+                
+                <% if (isAdmin) { %>
+                <td class="px-4 py-3 text-center">
+                  <button type="button"
+                    data-attendance-id="<%= row.id %>"
+                    data-username="<%= row.user_name %>"
+                    data-current-status="<%= row.status_name %>"
+                    onclick="openEditStatusModal(this)"
+                    class="text-[10px] bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 px-2.5 py-1 rounded-lg hover:bg-yellow-500/20 transition-colors">
+                    Edit Status
+                  </button>
+                </td>
+                <% } %>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <% if (result.totalPages > 1) { %>
+      <div class="flex items-center justify-between px-4 py-3 border-t border-slate-800">
+        <span class="text-xs text-slate-500">Hal <%= result.page %> dari <%= result.totalPages %></span>
+        <div class="flex gap-2">
+          <% if (result.page > 1) { %>
+            <a href="?<%= new URLSearchParams({...filters, page: result.page - 1}).toString() %>"
+              class="px-3 py-1.5 bg-slate-800 border border-slate-700 text-slate-300 text-xs rounded-lg hover:bg-slate-700 transition-colors">← Sebelumnya</a>
+          <% } %>
+          <% if (result.page < result.totalPages) { %>
+            <a href="?<%= new URLSearchParams({...filters, page: result.page + 1}).toString() %>"
+              class="px-3 py-1.5 bg-slate-800 border border-slate-700 text-slate-300 text-xs rounded-lg hover:bg-slate-700 transition-colors">Berikutnya →</a>
+          <% } %>
+        </div>
+      </div>
+      <% } %>
+    </div>
+
+  </div>
+</main>
+
+<%-include('partials/bottomnav.ejs') %>
+
+<!-- Modals media (Photo / Maps) -->
+<div id="photoModal" class="hidden fixed inset-0 z-[9998] bg-black/80 px-4 py-8 items-center justify-center">
+  <div class="max-w-md w-full mx-auto">
+    <div class="flex items-center justify-between mb-3">
+      <div id="photoModalTitle" class="text-white font-semibold text-sm">Foto Absensi</div>
+      <button type="button" onclick="hideAttendancePhoto()" class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-200 text-xs border border-slate-700">Tutup</button>
+    </div>
+    <img id="photoModalImage" src="" alt="Foto absensi" class="w-full rounded-xl border border-slate-700 bg-slate-900 object-contain max-h-[75vh]">
+  </div>
+</div>
+
+<div id="mapModal" class="hidden fixed inset-0 z-[9998] bg-black/80 px-4 py-8 items-center justify-center">
+  <div class="max-w-3xl w-full mx-auto">
+    <div class="flex items-center justify-between mb-3">
+      <div>
+        <div id="mapModalTitle" class="text-white font-semibold text-sm">Lokasi Absensi</div>
+        <div id="mapModalCoords" class="text-slate-400 text-xs mt-0.5"></div>
+      </div>
+      <div class="flex gap-2">
+        <a id="mapExternalLink" href="#" target="_blank" rel="noopener" class="px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 text-xs border border-emerald-500/20">Google Maps</a>
+        <button type="button" onclick="hideAttendanceMap()" class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-200 text-xs border border-slate-700">Tutup</button>
+      </div>
+    </div>
+    <iframe id="mapFrame" src="" class="w-full h-[60vh] rounded-xl border border-slate-700 bg-slate-900" loading="lazy"></iframe>
+  </div>
+</div>
+
+<!-- Modal Edit Status Manual (Khusus Admin) -->
+<div id="editStatusModal" class="hidden fixed inset-0 z-[9998] bg-black/70 backdrop-blur-sm px-4 py-8 items-center justify-center">
+  <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-sm mx-auto space-y-4">
+    <div class="text-center">
+      <h3 class="text-white font-bold text-base">Ubah Status Absensi</h3>
+      <p id="editStatusTargetUser" class="text-slate-400 text-xs mt-0.5"></p>
+    </div>
+
+    <form id="editStatusForm" action="/admin/attendance/update-status" method="POST" class="space-y-4">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <input type="hidden" name="_method" value="POST" />
+      <input type="hidden" name="attendance_id" id="editStatusAttendanceId" />
+
+      <div class="flex flex-col gap-1.5">
+        <label class="text-xs text-slate-400">Status Kehadiran Baru</label>
+        <select name="new_status" id="editStatusNewStatus" required
+          class="w-full bg-slate-800 border border-slate-700 text-white text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500">
+          <% const statusOptions = (typeof attendanceOptions !== 'undefined' && attendanceOptions && attendanceOptions.length) ? attendanceOptions : [
+            { name: 'Hadir' },
+            { name: 'Terlambat' },
+            { name: 'Alpha' },
+            { name: 'Izin' },
+            { name: 'Sakit' },
+            { name: 'Perjalanan Dinas' },
+            { name: 'Remote Work' }
+          ]; %>
+          <% statusOptions.forEach(opt => { %>
+            <option value="<%= opt.name %>"><%= opt.name %></option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div class="flex flex-col gap-1.5">
+        <label class="text-xs text-slate-400">Alasan Perubahan Status (Wajib)</label>
+        <textarea name="reason" required placeholder="Tulis alasan mengapa status absensi diubah..." rows="3"
+          class="w-full bg-slate-800 border border-slate-700 text-white text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-sky-500 placeholder-slate-600"></textarea>
+      </div>
+
+      <div class="flex gap-2 pt-2">
+        <button type="button" onclick="closeEditStatusModal()"
+          class="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 py-2.5 rounded-xl text-xs transition-colors">
+          Batal
+        </button>
+        <button type="submit" class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2.5 rounded-xl text-xs transition-colors">
+          Simpan Perubahan
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// Image Modal
+function showAttendancePhoto(src, title) {
+  // Dukungan kompatibilitas: cek jika path adalah Base64 data: atau path relatif /uploads
+  document.getElementById('photoModalImage').src = src.startsWith('data:') ? src : src;
+  document.getElementById('photoModalTitle').textContent = title;
+  document.getElementById('photoModal').classList.remove('hidden');
+  document.getElementById('photoModal').classList.add('flex');
+}
+
+function hideAttendancePhoto() {
+  document.getElementById('photoModal').classList.add('hidden');
+  document.getElementById('photoModal').classList.remove('flex');
+  document.getElementById('photoModalImage').src = '';
+}
+
+document.getElementById('photoModal').addEventListener('click', function (event) {
+  if (event.target === this) hideAttendancePhoto();
+});
+
+// Map Modal
+function showAttendanceMap(coords, title) {
+  const cleanCoords = String(coords || '').trim();
+  const encodedCoords = encodeURIComponent(cleanCoords);
+  document.getElementById('mapModalTitle').textContent = title;
+  document.getElementById('mapModalCoords').textContent = cleanCoords;
+  document.getElementById('mapExternalLink').href = 'https://www.google.com/maps?q=' + encodedCoords;
+  document.getElementById('mapFrame').src = 'https://maps.google.com/maps?q=' + encodedCoords + '&z=16&output=embed';
+  document.getElementById('mapModal').classList.remove('hidden');
+  document.getElementById('mapModal').classList.add('flex');
+}
+
+function hideAttendanceMap() {
+  document.getElementById('mapModal').classList.add('hidden');
+  document.getElementById('mapModal').classList.remove('flex');
+  document.getElementById('mapFrame').src = '';
+}
+
+document.getElementById('mapModal').addEventListener('click', function (event) {
+  if (event.target === this) hideAttendanceMap();
+});
+
+// Admin Manual Edit Status Modal
+window.openEditStatusModal = function openEditStatusModal(button) {
+  const attendanceId = button.dataset.attendanceId;
+  const username = button.dataset.username || '';
+  const currentStatus = button.dataset.currentStatus || '';
+  const statusSelect = document.getElementById('editStatusNewStatus');
+
+  document.getElementById('editStatusAttendanceId').value = attendanceId;
+  document.getElementById('editStatusTargetUser').textContent = 'Karyawan: ' + username + ' (Status: ' + currentStatus + ')';
+  statusSelect.value = currentStatus;
+  if (currentStatus && statusSelect.value !== currentStatus) {
+    const option = document.createElement('option');
+    option.value = currentStatus;
+    option.textContent = currentStatus;
+    statusSelect.prepend(option);
+    statusSelect.value = currentStatus;
+  }
+  
+  const modal = document.getElementById('editStatusModal');
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+
+window.closeEditStatusModal = function closeEditStatusModal() {
+  const modal = document.getElementById('editStatusModal');
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+}
+
+document.getElementById('editStatusModal').addEventListener('click', function(e) {
+  if (e.target === this) closeEditStatusModal();
+});
+</script>
+
+<%- include('partials/footer.ejs') %>

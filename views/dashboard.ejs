@@ -1,0 +1,198 @@
+<%-include('partials/head.ejs', { title: title }) %>
+<%- include('partials/sidebar.ejs') %>
+
+<main class="md:ml-64 pt-14 md:pt-0 pb-20 md:pb-8 min-h-screen">
+  <div class="max-w-2xl mx-auto px-4 py-6 space-y-5">
+
+    <!-- Greeting -->
+    <div>
+      <h1 class="text-xl font-bold text-white">👋 Halo, <%= user.username.split(' ')[0] %>!</h1>
+      <p class="text-sm text-slate-500 mt-0.5">
+        <%= new Date().toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' }) %>
+      </p>
+    </div>
+
+    <!-- Flash -->
+    <% if (success && success.length) { %>
+      <div class="bg-green-500/10 border border-green-500/20 text-green-400 text-sm px-4 py-3 rounded-xl"><%= success[0] %></div>
+    <% } %>
+    <% if (error && error.length) { %>
+      <div class="bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-4 py-3 rounded-xl"><%= error[0] %></div>
+    <% } %>
+
+    <!-- Status Absensi Hari Ini (Read-only) -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
+      <div class="flex items-center justify-between">
+        <div class="text-sm font-semibold text-white">📅 Status Absensi Hari Ini</div>
+        <% if (absenHariIni) { %>
+          <span class="text-xs px-2.5 py-1 rounded-full font-medium"
+            style="background:<%= absenHariIni.status==='Hadir'?'rgba(34,197,94,.15)':absenHariIni.status==='Terlambat'?'rgba(249,115,22,.15)':'rgba(100,116,139,.15)' %>;
+                   color:<%= absenHariIni.status==='Hadir'?'#22c55e':absenHariIni.status==='Terlambat'?'#f97316':'#94a3b8' %>">
+            <%= absenHariIni.status_icon %> <%= absenHariIni.status %>
+          </span>
+        <% } else { %>
+          <span class="text-xs px-2.5 py-1 rounded-full font-medium bg-red-500/15 text-red-400">
+            ❌ Belum Absen
+          </span>
+        <% } %>
+      </div>
+      
+      <div class="grid grid-cols-3 gap-3">
+        <div class="bg-slate-800/50 rounded-xl p-3 text-center">
+          <div class="text-xs text-slate-500 mb-1">Check-In</div>
+          <div class="text-sm font-bold text-white"><%= (absenHariIni && absenHariIni.checkin_fmt) ? absenHariIni.checkin_fmt.slice(0,5) : '—' %></div>
+        </div>
+        <div class="bg-slate-800/50 rounded-xl p-3 text-center">
+          <div class="text-xs text-slate-500 mb-1">Check-Out</div>
+          <div class="text-sm font-bold text-white"><%= (absenHariIni && absenHariIni.checkout_fmt) ? absenHariIni.checkout_fmt.slice(0,5) : '—' %></div>
+        </div>
+        <div class="bg-slate-800/50 rounded-xl p-3 text-center">
+          <div class="text-xs text-slate-500 mb-1">Jam Kerja</div>
+          <div class="text-sm font-bold text-white"><%= (absenHariIni && absenHariIni.work_hours > 0) ? absenHariIni.work_hours + 'j' : '—' %></div>
+        </div>
+      </div>
+
+      <% if (!absenHariIni) { %>
+        <div class="border-t border-slate-800/60 pt-3 space-y-3">
+          <div class="text-xs text-center text-slate-500">
+            ℹ️ Silakan lakukan proses absensi melalui tablet/perangkat mesin integrasi absensi.
+          </div>
+          <a href="/integrasi/login.html"
+             class="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl font-semibold text-sm
+                    bg-blue-500/15 border border-blue-500/30 text-blue-400
+                    hover:bg-blue-500/25 hover:border-blue-400/50 hover:text-blue-300
+                    active:scale-95 transition-all duration-150">
+            🔐 Log In Sekarang
+          </a>
+        </div>
+      <% } %>
+    </div>
+
+    <!-- DIAGRAM ABSENSI USER (Chart.js) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Diagram Mingguan -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+        <div class="text-sm font-semibold text-white mb-3">📈 Diagram Mingguan (7 Hari Terakhir)</div>
+        <div class="relative h-48 flex items-center justify-center">
+          <canvas id="weeklyChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Diagram Bulanan -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+        <div class="text-sm font-semibold text-white mb-3">📊 Diagram Bulanan (Bulan Ini)</div>
+        <div class="relative h-48 flex items-center justify-center">
+          <canvas id="monthlyChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Links (Hanya histori, link checkin dihapus) -->
+    <div class="grid grid-cols-1 gap-3">
+      <a href="/history" class="bg-slate-900 border border-slate-800 hover:border-green-500/40 rounded-2xl p-4 flex items-center gap-3 transition-all group">
+        <div class="w-10 h-10 bg-green-500/10 border border-green-500/20 rounded-xl flex items-center justify-center text-xl group-hover:bg-green-500/20 transition-colors">📋</div>
+        <div>
+          <div class="text-sm font-semibold text-white">Lihat Riwayat Histori</div>
+          <div class="text-xs text-slate-500">Cek rekapitulasi kehadiran Anda sepanjang waktu</div>
+        </div>
+      </a>
+    </div>
+
+  </div>
+</main>
+
+<%-include('partials/bottomnav.ejs') %>
+
+<!-- Ambil Chart.js via CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      const res = await fetch('/api/user/attendance-stats');
+      const data = await res.json();
+      if (!data.ok) return;
+
+      const labels = ['Hadir', 'Terlambat', 'Alpha', 'Izin', 'Sakit', 'Dinas'];
+      const colors = ['#22c55e', '#f97316', '#ef4444', '#eab308', '#ec4899', '#3b82f6'];
+
+      // 1. Render Weekly Chart
+      const wData = [
+        data.weekly.hadir,
+        data.weekly.terlambat,
+        data.weekly.alpha,
+        data.weekly.izin,
+        data.weekly.sakit,
+        data.weekly.dinas
+      ];
+      
+      const hasWeeklyData = wData.some(v => v > 0);
+      if (hasWeeklyData) {
+        new Chart(document.getElementById('weeklyChart'), {
+          type: 'doughnut',
+          data: {
+            labels,
+            datasets: [{
+              data: wData,
+              backgroundColor: colors,
+              borderWidth: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'right',
+                labels: { color: '#94a3b8', font: { size: 11 } }
+              }
+            }
+          }
+        });
+      } else {
+        document.getElementById('weeklyChart').parentElement.innerHTML = '<div class="text-xs text-slate-600">Tidak ada riwayat absensi minggu ini</div>';
+      }
+
+      // 2. Render Monthly Chart
+      const mData = [
+        data.monthly.hadir,
+        data.monthly.terlambat,
+        data.monthly.alpha,
+        data.monthly.izin,
+        data.monthly.sakit,
+        data.monthly.dinas
+      ];
+
+      const hasMonthlyData = mData.some(v => v > 0);
+      if (hasMonthlyData) {
+        new Chart(document.getElementById('monthlyChart'), {
+          type: 'doughnut',
+          data: {
+            labels,
+            datasets: [{
+              data: mData,
+              backgroundColor: colors,
+              borderWidth: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'right',
+                labels: { color: '#94a3b8', font: { size: 11 } }
+              }
+            }
+          }
+        });
+      } else {
+        document.getElementById('monthlyChart').parentElement.innerHTML = '<div class="text-xs text-slate-600">Tidak ada riwayat absensi bulan ini</div>';
+      }
+
+    } catch (err) {
+      console.error('Failed to load user charts:', err);
+    }
+  });
+</script>
+
+<%- include('partials/footer.ejs') %>

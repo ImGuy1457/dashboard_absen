@@ -1,0 +1,291 @@
+<%- include('../partials/head.ejs', { title: title }) %>
+<%- include('../partials/sidebar.ejs') %>
+
+<main class="md:ml-64 pt-14 md:pt-0 pb-20 md:pb-8 min-h-screen">
+  <div class="max-w-3xl mx-auto px-4 py-6 space-y-5">
+
+    <!-- Header -->
+    <div class="flex items-center gap-3">
+      <a href="/admin/dashboard" class="w-9 h-9 bg-slate-800 border border-slate-700 rounded-xl flex items-center justify-center text-slate-400 hover:text-white transition-colors">←</a>
+      <div>
+        <h1 class="text-xl font-bold text-white">🗓️ Kelola Hari Libur / Tanggal Merah</h1>
+        <p class="text-sm text-slate-500">Daftar hari libur nasional dan ketentuan override absensi</p>
+      </div>
+    </div>
+
+    <!-- Flash -->
+    <% if (success && success.length) { %>
+      <div class="bg-green-500/10 border border-green-500/20 text-green-400 text-sm px-4 py-3 rounded-xl"><%= success[0] %></div>
+    <% } %>
+    <% if (error && error.length) { %>
+      <div class="bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-4 py-3 rounded-xl"><%= error[0] %></div>
+    <% } %>
+
+    <!-- Form Tambah Hari Libur -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+      <div class="text-sm font-semibold text-white mb-4">➕ Tambah Tanggal Merah / Hari Libur</div>
+      <form id="formHariLibur" action="/admin/holidays/add" method="POST" class="space-y-4" novalidate>
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs text-slate-400">Nama Hari Libur</label>
+            <input type="text" name="nama_hari_libur" placeholder="Contoh: Tahun Baru Hijriah"
+              class="w-full bg-slate-800 border border-slate-700 text-white text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-sky-500 placeholder-slate-600">
+          </div>
+          
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs text-slate-400">Tanggal Libur</label>
+            <input type="date" name="tanggal"
+              class="w-full bg-slate-800 border border-slate-700 text-white text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-sky-500">
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs text-slate-400">Deskripsi / Catatan Tambahan (Opsional)</label>
+          <textarea name="deskripsi" placeholder="Deskripsi detail mengenai hari libur..." rows="2"
+            class="w-full bg-slate-800 border border-slate-700 text-white text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-sky-500 placeholder-slate-600"></textarea>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <input type="checkbox" name="allow_override" id="allow_override" value="1"
+            class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-sky-500 focus:ring-sky-500">
+          <label for="allow_override" class="text-xs text-slate-300">
+            Izinkan karyawan absen jika ada kerja mendesak (Admin override enabled)
+          </label>
+        </div>
+
+        <button type="submit" class="bg-sky-500 hover:bg-sky-600 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition-colors">
+          💾 Simpan Hari Libur
+        </button>
+      </form>
+    </div>
+
+    <!-- Daftar Hari Libur -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-800 flex items-center justify-between">
+        <div class="text-sm font-semibold text-white">Daftar Hari Libur Terdaftar</div>
+        <div class="text-xs text-slate-500"><%= holidays.length %> hari libur</div>
+      </div>
+
+      <% if (!holidays || holidays.length === 0) { %>
+        <div class="text-center text-slate-600 py-10">
+          <div class="text-3xl mb-2">📅</div>
+          <div class="text-sm">Belum ada daftar hari libur khusus</div>
+        </div>
+      <% } else { %>
+        <div class="divide-y divide-slate-800/50">
+          <% holidays.forEach(h => { %>
+          <div class="flex items-center justify-between px-5 py-3.5 hover:bg-slate-800/30 transition-colors">
+            <div>
+              <div class="text-sm font-medium text-white"><%= h.nama_hari_libur %></div>
+              <div class="text-xs text-slate-400 mt-0.5">
+                📅 <%= new Date(h.tanggal).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' }) %>
+                <% if (h.deskripsi) { %> — <span class="italic"><%= h.deskripsi %></span><% } %>
+              </div>
+              <div class="text-[10px] mt-1 font-semibold <%= h.allow_override ? 'text-green-400' : 'text-red-400' %>">
+                <%= h.allow_override ? '✓ Boleh Override Absen' : '✕ Blokir Absen Total' %>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button type="button"
+                data-action="/admin/holidays/edit/<%= h.id %>"
+                data-nama="<%= h.nama_hari_libur %>"
+                data-tanggal="<%= h.tanggal instanceof Date ? h.tanggal.toISOString().slice(0, 10) : String(h.tanggal).slice(0, 10) %>"
+                data-deskripsi="<%= h.deskripsi || '' %>"
+                data-allow-override="<%= h.allow_override ? '1' : '0' %>"
+                onclick="openEditModal(this)"
+                class="text-xs bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 px-3 py-1 rounded-lg hover:bg-yellow-500/20 transition-colors">
+                Edit
+              </button>
+              <form action="/admin/holidays/delete/<%= h.id %>" method="POST"
+                data-hapus-libur="true"
+                data-nama="<%= h.nama_hari_libur %>">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <button type="submit" class="text-xs bg-red-500/10 text-red-400 border border-red-500/20 px-3 py-1 rounded-lg hover:bg-red-500/20 transition-colors">
+                  Hapus
+                </button>
+              </form>
+            </div>
+          </div>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+
+  </div>
+
+  <!-- Modal Edit Hari Libur -->
+  <div id="editModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div class="bg-slate-900 border border-slate-700/50 rounded-2xl p-8 w-full max-w-sm mx-4 flex flex-col items-center gap-4">
+      <div class="text-center w-full">
+        <h2 class="text-white font-bold text-lg mb-1">Edit Hari Libur</h2>
+        <p class="text-slate-400 text-xs">Perbarui data hari libur nasional</p>
+      </div>
+      <form id="editForm" method="POST" class="w-full space-y-3">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <div>
+          <label class="text-xs text-slate-400 mb-1 block">Nama Hari Libur</label>
+          <input type="text" id="editNama" name="nama_hari_libur" required
+            class="w-full bg-slate-800 border border-slate-700 text-white text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-yellow-500">
+        </div>
+        <div>
+          <label class="text-xs text-slate-400 mb-1 block">Tanggal</label>
+          <input type="date" id="editTanggal" name="tanggal" required
+            class="w-full bg-slate-800 border border-slate-700 text-white text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-yellow-500">
+        </div>
+        <div>
+          <label class="text-xs text-slate-400 mb-1 block">Deskripsi</label>
+          <textarea id="editDeskripsi" name="deskripsi" rows="2"
+            class="w-full bg-slate-800 border border-slate-700 text-white text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-yellow-500"></textarea>
+        </div>
+        <div class="flex items-center gap-2">
+          <input type="checkbox" id="editAllowOverride" name="allow_override" value="1"
+            class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-sky-500 focus:ring-sky-500">
+          <label for="editAllowOverride" class="text-xs text-slate-300">Boleh Override Absen</label>
+        </div>
+        <div class="flex gap-3 pt-2">
+          <button type="button" onclick="closeEditModal()"
+            class="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 py-2.5 rounded-xl text-sm transition-colors">
+            ✕ Batal
+          </button>
+          <button type="submit"
+            class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white py-2.5 rounded-xl text-sm font-semibold transition-colors">
+            💾 Simpan
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Konfirmasi Hapus -->
+  <div id="modalHapusLibur" class="hidden fixed inset-0 z-50 flex items-center justify-center">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="modalBackdropLibur"></div>
+    <div class="relative bg-slate-800 border border-slate-700 rounded-2xl p-6 w-full max-w-sm mx-4 shadow-2xl">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-red-500/15 border border-red-500/25 flex items-center justify-center text-lg flex-shrink-0">🗑️</div>
+        <div>
+          <div class="text-base font-semibold text-white">Hapus Hari Libur</div>
+          <div class="text-xs text-slate-500 mt-0.5">Tindakan ini tidak dapat dibatalkan</div>
+        </div>
+      </div>
+      <p class="text-sm text-slate-400 bg-red-500/5 border border-red-500/10 rounded-xl px-4 py-3 mb-5 leading-relaxed">
+        Apakah kamu yakin ingin menghapus hari libur <b id="modalNamaLibur" class="text-red-300"></b>? Data ini akan dihapus secara permanen.
+      </p>
+      <div class="flex gap-2.5">
+        <button onclick="tutupModalLibur()" class="flex-1 bg-transparent border border-slate-600 text-slate-400 rounded-xl py-2.5 text-sm font-medium hover:bg-slate-700 transition-colors">
+          Batal
+        </button>
+        <button id="btnKonfirmasiHapusLibur" class="flex-1 bg-red-500/80 hover:bg-red-500 border border-red-500/40 text-white rounded-xl py-2.5 text-sm font-semibold transition-colors">
+          Ya, Hapus
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Validasi Kosong -->
+  <div id="modalValidasi" class="hidden fixed inset-0 z-50 flex items-center justify-center">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+    <div class="relative bg-slate-800 border border-slate-700 rounded-2xl p-8 w-full max-w-sm mx-4 shadow-2xl flex flex-col items-center text-center gap-4">
+      <div class="w-16 h-16 rounded-2xl bg-yellow-500/20 border border-yellow-500/30 flex items-center justify-center text-3xl">
+        ⚠️
+      </div>
+      <div>
+        <div id="modalValidasiJudul" class="text-white font-bold text-lg mb-1"></div>
+        <div id="modalValidasiPesan" class="text-slate-400 text-sm leading-relaxed"></div>
+      </div>
+      <button onclick="tutupModalValidasi()" class="w-full bg-sky-500 hover:bg-sky-600 text-white font-semibold py-3 rounded-xl text-sm transition-colors">
+        ✅ Oke, Mengerti
+      </button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  // ── Modal Validasi ──────────────────────────────────────
+  function tampilkanModalValidasi(judul, pesan) {
+    document.getElementById('modalValidasiJudul').textContent = judul;
+    document.getElementById('modalValidasiPesan').textContent = pesan;
+    document.getElementById('modalValidasi').classList.remove('hidden');
+  }
+
+  function tutupModalValidasi() {
+    document.getElementById('modalValidasi').classList.add('hidden');
+  }
+
+  // ── Validasi Form Tambah Hari Libur ─────────────────────
+  document.getElementById('formHariLibur').addEventListener('submit', function(e) {
+    const nama = this.querySelector('[name="nama_hari_libur"]').value.trim();
+    const tanggal = this.querySelector('[name="tanggal"]').value.trim();
+
+    if (!nama && !tanggal) {
+      e.preventDefault();
+      tampilkanModalValidasi('Data Belum Diisi!', 'Nama hari libur dan tanggal wajib diisi sebelum menyimpan.');
+      return;
+    }
+    if (!nama) {
+      e.preventDefault();
+      tampilkanModalValidasi('Hari Libur Belum Diisi! ', 'Ketik nama hari libur terlebih dahulu sebelum menyimpan.');
+      return;
+    }
+    if (!tanggal) {
+      e.preventDefault();
+      tampilkanModalValidasi('Tanggal Belum Dipilih!', 'Pilih tanggal hari libur terlebih dahulu sebelum menyimpan.');
+      return;
+    }
+  });
+
+  // ── Modal Konfirmasi Hapus ──────────────────────────────
+  let formHapusLiburPending = null;
+
+  document.querySelectorAll('form[data-hapus-libur]').forEach(form => {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      document.getElementById('modalNamaLibur').textContent = this.dataset.nama || 'ini';
+      formHapusLiburPending = this;
+      document.getElementById('modalHapusLibur').classList.remove('hidden');
+    });
+  });
+
+  document.getElementById('btnKonfirmasiHapusLibur').addEventListener('click', function() {
+    if (formHapusLiburPending) {
+      formHapusLiburPending.submit();
+      formHapusLiburPending = null;
+    }
+    tutupModalLibur();
+  });
+
+  document.getElementById('modalBackdropLibur').addEventListener('click', tutupModalLibur);
+
+  function tutupModalLibur() {
+    document.getElementById('modalHapusLibur').classList.add('hidden');
+    formHapusLiburPending = null;
+  }
+
+  // ── Modal Edit ──────────────────────────────────────────
+  window.openEditModal = function(button) {
+    document.getElementById('editForm').action = button.dataset.action;
+    document.getElementById('editNama').value = button.dataset.nama || '';
+    document.getElementById('editTanggal').value = button.dataset.tanggal || '';
+    document.getElementById('editDeskripsi').value = button.dataset.deskripsi || '';
+    document.getElementById('editAllowOverride').checked = (button.dataset.allowOverride === '1');
+
+    const modal = document.getElementById('editModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
+
+  window.closeEditModal = function() {
+    const modal = document.getElementById('editModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+
+  document.getElementById('editModal').addEventListener('click', function(e) {
+    if (e.target === this) closeEditModal();
+  });
+</script>
+
+<%- include('../partials/bottomnav.ejs') %>
+<%- include('../partials/footer.ejs') %>

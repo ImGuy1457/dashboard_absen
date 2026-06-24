@@ -1,0 +1,225 @@
+<%-include('../partials/head.ejs', { title: title }) %>
+<%- include('../partials/sidebar.ejs') %>
+
+<main class="md:ml-64 pt-14 md:pt-0 pb-20 md:pb-8 min-h-screen">
+  <div class="max-w-5xl mx-auto px-4 py-6 space-y-5">
+
+    <!-- Header -->
+    <div>
+      <h1 class="text-xl font-bold text-white">📊 Admin Dashboard</h1>
+      <p class="text-xs text-slate-500">Statistik kehadiran seluruh karyawan</p>
+    </div>
+
+    <!-- Flash -->
+    <% if (success && success.length) { %>
+      <div class="bg-green-500/10 border border-green-500/20 text-green-400 text-sm px-4 py-3 rounded-xl"><%= success[0] %></div>
+    <% } %>
+
+    <!-- Stat Cards -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div class="bg-slate-900 border border-sky-500/20 rounded-2xl p-4 shadow-md">
+        <div class="text-3xl font-bold text-sky-400 font-mono"><%= totalUser %></div>
+        <div class="text-[10px] text-slate-500 mt-1 font-medium">Karyawan Terdaftar</div>
+      </div>
+      <div class="bg-slate-900 border border-green-500/20 rounded-2xl p-4 shadow-md">
+        <div class="text-3xl font-bold text-green-400 font-mono"><%= stat.hadir || 0 %></div>
+        <div class="text-[10px] text-slate-500 mt-1 font-medium">Hadir Hari Ini</div>
+      </div>
+      <div class="bg-slate-900 border border-orange-500/20 rounded-2xl p-4 shadow-md">
+        <div class="text-3xl font-bold text-orange-400 font-mono"><%= stat.telat || 0 %></div>
+        <div class="text-[10px] text-slate-500 mt-1 font-medium">Terlambat Hari Ini</div>
+      </div>
+      <div class="bg-slate-900 border border-red-500/20 rounded-2xl p-4 shadow-md">
+        <div class="text-3xl font-bold text-red-400 font-mono"><%= stat.alpha || 0 %></div>
+        <div class="text-[10px] text-slate-500 mt-1 font-medium">Alpha Hari Ini</div>
+      </div>
+    </div>
+
+    <!-- Secondary stats -->
+    <div class="grid grid-cols-3 gap-3">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center gap-4 shadow-sm">
+        <div class="w-10 h-10 bg-yellow-500/10 border border-yellow-500/20 rounded-xl flex items-center justify-center text-xl shrink-0">📋</div>
+        <div>
+          <div class="text-xl font-bold text-yellow-400 font-mono"><%= stat.izin || 0 %></div>
+          <div class="text-[10px] text-slate-500">Izin Hari Ini</div>
+        </div>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center gap-4 shadow-sm">
+        <div class="w-10 h-10 bg-pink-500/10 border border-pink-500/20 rounded-xl flex items-center justify-center text-xl shrink-0">🤒</div>
+        <div>
+          <div class="text-xl font-bold text-pink-400 font-mono"><%= stat.sakit || 0 %></div>
+          <div class="text-[10px] text-slate-500">Sakit Hari Ini</div>
+        </div>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center gap-4 shadow-sm">
+        <div class="w-10 h-10 bg-blue-500/10 border border-blue-500/20 rounded-xl flex items-center justify-center text-xl shrink-0">✈️</div>
+        <div>
+          <div class="text-xl font-bold text-blue-400 font-mono"><%= stat.dinas || 0 %></div>
+          <div class="text-[10px] text-slate-500">Dinas Hari Ini</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pie Charts Row -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Weekly Pie -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
+        <div class="flex items-center justify-between mb-4">
+          <div class="text-sm font-semibold text-white">📅 Laporan Mingguan</div>
+          <div class="text-xs text-slate-500">7 Hari Terakhir</div>
+        </div>
+        <div class="relative h-52 flex items-center justify-center">
+          <canvas id="weeklyPie"></canvas>
+        </div>
+      </div>
+      <!-- Monthly Pie -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
+        <div class="flex items-center justify-between mb-4">
+          <div class="text-sm font-semibold text-white">🗓 Laporan Bulanan</div>
+          <div class="text-xs text-slate-500">Bulan Ini</div>
+        </div>
+        <div class="relative h-52 flex items-center justify-center">
+          <canvas id="monthlyPie"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bar Chart -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
+      <div class="text-sm font-semibold text-white mb-4">📊 Tren Harian Bulan Ini</div>
+      <div class="relative h-48 flex items-center justify-center">
+        <canvas id="adminBar"></canvas>
+      </div>
+    </div>
+
+    <!-- Jadwal Jam Jabatan -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-lg">
+      <div class="px-5 py-4 border-b border-slate-800 flex items-center justify-between">
+        <div>
+          <div class="text-sm font-semibold text-white">⏰ Pengaturan Jam Kerja per Jabatan</div>
+          <div class="text-xs text-slate-500 mt-0.5 font-light">Konfigurasi jadwal default yang terikat masing-masing jabatan.</div>
+        </div>
+        <a href="/admin/schedules" class="text-xs bg-sky-500/10 text-sky-400 border border-sky-500/20 px-3 py-1.5 rounded-lg hover:bg-sky-500/20 transition-colors whitespace-nowrap">
+          Kelola Semua →
+        </a>
+      </div>
+      <% if (!schedules || schedules.length === 0) { %>
+        <div class="text-center text-slate-600 py-8">
+          <div class="text-2xl mb-2">⏰</div>
+          <div class="text-sm">Belum ada jadwal khusus. Semua jabatan menggunakan default global.</div>
+          <a href="/admin/schedules" class="inline-block mt-3 text-xs text-sky-400 hover:underline">Tambah jadwal jabatan →</a>
+        </div>
+      <% } else { %>
+        <div class="divide-y divide-slate-800/50">
+          <% schedules.slice(0,5).forEach(s => { %>
+          <div class="flex items-center justify-between px-5 py-3 hover:bg-slate-800/30 transition-colors">
+            <div class="font-medium text-sm text-white">
+              <%= s.role_name ? s.role_name : '⚙️ Default Global (Semua Jabatan)' %>
+            </div>
+            <div class="flex items-center gap-4 text-sm font-mono">
+              <span class="text-green-400">🟢 <%= String(s.jam_masuk).slice(0,5) %></span>
+              <span class="text-red-400">🔴 <%= String(s.jam_pulang).slice(0,5) %></span>
+            </div>
+          </div>
+          <% }) %>
+          <% if (schedules.length > 5) { %>
+          <div class="px-5 py-2.5 text-xs text-slate-500 border-t border-slate-800/60">+<%= schedules.length - 5 %> jabatan lainnya — <a href="/admin/schedules" class="text-sky-400 hover:underline">lihat semua</a></div>
+          <% } %>
+        </div>
+      <% } %>
+    </div>
+
+    <!-- Quick links -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <a href="/admin/users" class="bg-slate-900 border border-slate-800 hover:border-sky-500/40 rounded-2xl p-4 flex items-center gap-3 transition-all group shadow-sm">
+        <div class="w-10 h-10 bg-sky-500/10 border border-sky-500/20 rounded-xl flex items-center justify-center text-xl group-hover:bg-sky-500/20 transition-colors">👥</div>
+        <div>
+          <div class="text-sm font-semibold text-white">Akun Karyawan</div>
+          <div class="text-xs text-slate-500">Kelola karyawan & otorisasi</div>
+        </div>
+      </a>
+      <a href="/admin/int-options" class="bg-slate-900 border border-slate-800 hover:border-orange-500/40 rounded-2xl p-4 flex items-center gap-3 transition-all group shadow-sm">
+        <div class="w-10 h-10 bg-orange-500/10 border border-orange-500/20 rounded-xl flex items-center justify-center text-xl group-hover:bg-orange-500/20 transition-colors">📋</div>
+        <div>
+          <div class="text-sm font-semibold text-white">Opsi Form Absen</div>
+          <div class="text-xs text-slate-500">Tempat & keperluan integrasi</div>
+        </div>
+      </a>
+      <a href="/history" class="bg-slate-900 border border-slate-800 hover:border-green-500/40 rounded-2xl p-4 flex items-center gap-3 transition-all group shadow-sm">
+        <div class="w-10 h-10 bg-green-500/10 border border-green-500/20 rounded-xl flex items-center justify-center text-xl group-hover:bg-green-500/20 transition-colors">📋</div>
+        <div>
+          <div class="text-sm font-semibold text-white">Histori & Ekspor</div>
+          <div class="text-xs text-slate-500">Ubah status & export CSV</div>
+        </div>
+      </a>
+    </div>
+
+  </div>
+</main>
+
+<%-include('../partials/bottomnav.ejs') %>
+
+<script>
+const weeklyDistData  = <%- JSON.stringify(weeklyDist) %>;
+const monthlyDistData = <%- JSON.stringify(monthlyDist) %>;
+const monthlyData     = <%- JSON.stringify(monthly) %>;
+
+const pieOptions = () => ({
+  responsive: true,
+  maintainAspectRatio: false,
+  cutout: '60%',
+  plugins: {
+    legend: { position:'right', labels:{ color:'#94a3b8', font:{size:10}, padding:8, boxWidth:10 } },
+    tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed} absensi` } }
+  }
+});
+
+function makePie(canvasId, data) {
+  const filtered = data.filter(d => d.total > 0);
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  if (!filtered.length) {
+    canvas.parentElement.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#475569;font-size:13px">Belum ada data</div>';
+    return;
+  }
+  new Chart(canvas.getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: filtered.map(d => d.name),
+      datasets: [{ data: filtered.map(d => d.total), backgroundColor: filtered.map(d => d.color), borderWidth: 0, hoverOffset: 6 }]
+    },
+    options: pieOptions()
+  });
+}
+
+makePie('weeklyPie', weeklyDistData);
+makePie('monthlyPie', monthlyDistData);
+
+// Bar Chart untuk Tren Harian
+const days = Array.from({ length: 31 }, (_, i) => i + 1);
+const safeMonthly = Array.isArray(monthlyData) ? monthlyData : [];
+const barCanvas = document.getElementById('adminBar');
+if (barCanvas) {
+  new Chart(barCanvas.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: days,
+      datasets: [
+        { label:'Hadir Tepat Waktu', data: days.map(d => { const r=safeMonthly.find(m=>m.day===d); return r?r.tepat:0; }), backgroundColor:'#0ea5e9', borderRadius:3 },
+        { label:'Terlambat', data: days.map(d => { const r=safeMonthly.find(m=>m.day===d); return r?r.telat:0; }), backgroundColor:'#f97316', borderRadius:3 }
+      ]
+    },
+    options: {
+      responsive:true, 
+      maintainAspectRatio:false,
+      plugins:{ legend:{ labels:{ color:'#94a3b8', font:{size:10}, padding:8, boxWidth:10 } } },
+      scales:{
+        x:{ ticks:{color:'#475569',font:{size:9}}, grid:{color:'#1e293b'} },
+        y:{ ticks:{color:'#475569'}, grid:{color:'#1e293b'}, beginAtZero:true }
+      }
+    }
+  });
+}
+</script>
+
+<%- include('../partials/footer.ejs') %>
